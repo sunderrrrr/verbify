@@ -80,6 +80,7 @@ DB_PORT=5432
 DB_USER=verbify
 DB_PASSWORD=verbify123
 DB_NAME=verbify
+FRONTEND_URL=http://localhost:3000
 ```
 
 ### **Фронтенд**
