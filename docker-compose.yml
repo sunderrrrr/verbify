@@ -1,50 +1,58 @@
-version: '3.8'
-
 services:
-  frontend:
-    build: ./frontend/whyai-fr
-    ports:
-      - "3000:3000"
-    env_file:
-      - ./frontend/.env.production
-    environment:
-      - NEXT_PUBLIC_API_URL=http://localhost:8090
-    depends_on:
-      - backend
+  postgres:
+    image: postgres:15
+    restart: always
+    env_file: ./backend/.env
+    volumes:
+      - pgdata:/var/lib/postgresql/data
     networks:
-      - app-network
+      - whyai-net
+    ports:
+      - "5436:5432"  # хост:контейнер
 
-  backend:
-    build: ./backend
+  migrate:
+    image: migrate/migrate
+    depends_on:
+      - postgres
+    volumes:
+      - ./backend/schema:/schema
+    command: [
+      "-path", "/schema",
+      "-database=postgres://${DB_USER}:${DB_PASS}@postgres:5432/${DB_NAME}?sslmode=disable",
+      "up"
+    ]
     env_file:
       - ./backend/.env
-    environment:
-      - DB_HOST=postgres
-    depends_on:
-      postgres:
-        condition: service_healthy
     networks:
-      - app-network
+      - whyai-net
 
-  postgres:
-    image: postgres:14
-    environment:
-      - POSTGRES_USER=${DB_USER}
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
-      - POSTGRES_DB=${DB_NAME}
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
+  backend:
+    build:
+      context: ./backend
+    env_file:
+      - ./backend/.env
+    depends_on:
+      - postgres
+      - migrate
     networks:
-      - app-network
+      - whyai-net
+    ports:
+      - "8090:8090"
+
+  frontend:
+    build:
+      context: ./frontend/whyai-fr
+    env_file:
+      - ./frontend/whyai-fr/.env
+    networks:
+      - whyai-net
+    ports:
+      - "3000:3000"
+    command: sh -c "yarn install && NEXT_TELEMETRY_DISABLED=1 yarn dev"
 
 volumes:
-  postgres-data:
+  pgdata:
 
 networks:
-  app-network:
+  whyai-net:
     driver: bridge
