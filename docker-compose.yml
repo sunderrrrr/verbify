@@ -11,7 +11,7 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U phaethon21 -d verbify-db"]
+      test: ["CMD-SHELL", "pg_isready -U phaethon21 -d ${DB_NAME}"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -62,7 +62,6 @@ services:
       - whyai-net
     ports:
       - "3000:3000"
-    #command: sh -c "yarn install && NEXT_TELEMETRY_DISABLED=1 yarn dev"
 
 volumes:
   pgdata:
