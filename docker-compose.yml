@@ -1,26 +1,38 @@
+version: '3.8'
+
 services:
   postgres:
     image: postgres:15
     restart: always
-    env_file: ./backend/.env
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_DB: ${DB_NAME}
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U phaethon21 -d verbify-db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     networks:
       - whyai-net
     ports:
-      - "5436:5432"  # хост:контейнер
+      - "5436:5432"
 
   migrate:
     image: migrate/migrate
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     volumes:
       - ./backend/schema:/schema
-    command: [
-      "-path", "/schema",
-      "-database=postgres://${DB_USER}:${DB_PASS}@postgres:5432/${DB_NAME}?sslmode=disable",
-      "up"
-    ]
+    command:
+      [
+        "-path", "/schema",
+        "-database=postgres://${DB_USER}:${DB_PASS}@postgres:5432/${DB_NAME}?sslmode=disable",
+        "up"
+      ]
     env_file:
       - ./backend/.env
     networks:
@@ -32,8 +44,10 @@ services:
     env_file:
       - ./backend/.env
     depends_on:
-      - postgres
-      - migrate
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
     networks:
       - whyai-net
     ports:
@@ -48,7 +62,7 @@ services:
       - whyai-net
     ports:
       - "3000:3000"
-    command: sh -c "yarn install && NEXT_TELEMETRY_DISABLED=1 yarn dev"
+    #command: sh -c "yarn install && NEXT_TELEMETRY_DISABLED=1 yarn dev"
 
 volumes:
   pgdata:
