@@ -1,0 +1,85 @@
+package service
+
+import (
+	"WhyAi/internal/domain"
+	"WhyAi/internal/repository"
+	"strconv"
+)
+
+type ChatService struct {
+	repo   repository.Repository
+	Theory TheoryService
+	LLM    LLMService
+}
+
+func NewChatService(repo repository.Repository) *ChatService {
+	return &ChatService{repo: repo}
+}
+
+func (s *ChatService) Chat(taskId, userId int) ([]domain.Message, error) {
+	req, err := s.repo.ChatExist(taskId, userId)
+	if err != nil {
+		return nil, err
+	}
+	if req == false {
+		theory, _ := s.Theory.SendTheory(strconv.Itoa(taskId), false)
+		msg := domain.Message{
+			Role:    "system",
+			Content: initPrompt + theory,
+		}
+		err := s.AddMessage(taskId, userId, msg)
+		if err != nil {
+			return nil, err
+		}
+		return []domain.Message{}, nil
+	}
+	chat, err := s.repo.GetChat(taskId, userId)
+	if err != nil {
+		return nil, err
+	}
+	return chat, err
+}
+func (s *ChatService) AddMessage(taskId, userId int, message domain.Message) error {
+	if message.Role == "user" {
+		if err := s.repo.AddMessage(taskId, userId, message); err != nil {
+			return err
+		}
+		history, err := s.Chat(taskId, userId)
+		if err != nil {
+			return err
+		}
+		request, err := s.LLM.AskLLM(history, false)
+		if err != nil {
+			return err
+		}
+		if request == nil {
+			return err
+		}
+		if err := s.repo.AddMessage(taskId, userId, *request); err != nil {
+			return err
+		}
+
+		return nil
+	} else if message.Role == "bot" {
+		if err := s.repo.AddMessage(taskId, userId, message); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (s *ChatService) ClearContext(taskId, userId int) error {
+	if err := s.repo.ClearContext(taskId, userId); err != nil {
+		return err
+	}
+	theory, _ := s.Theory.SendTheory(strconv.Itoa(taskId), false)
+	msg := domain.Message{
+		Role:    "system",
+		Content: initPrompt + theory,
+	}
+	if err := s.AddMessage(taskId, userId, msg); err != nil {
+		return err
+	}
+	return nil
+
+}

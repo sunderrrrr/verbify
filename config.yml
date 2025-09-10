@@ -1,0 +1,21 @@
+version: "1.0.0"
+
+server:
+  port: "8090"
+  host: "0.0.0.0"
+  mode: "DEV"
+
+database:
+  host: "localhost"
+  port: "5432"
+  user: ""
+  password: ""
+  name: ""
+  ssl_mode: "disable"
+
+llm:
+  api_key: ""
+  base_url: "https://api.proxyapi.ru/deepseek/chat/completions"
+
+security:
+  frontend_url: "http://localhost:3000"
