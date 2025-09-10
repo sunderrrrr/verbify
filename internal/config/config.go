@@ -1,11 +1,12 @@
 package config
 
 import (
-	"fmt"
-	"github.com/joho/godotenv"
-	"github.com/spf13/viper"
+	"WhyAi/pkg/logger"
 	"log"
 	"sync"
+
+	"github.com/joho/godotenv"
+	"github.com/spf13/viper"
 )
 
 type Config struct {
@@ -30,6 +31,8 @@ type Config struct {
 	} `mapstructure:"LLM"`
 
 	Security struct {
+		Salt        string `mapstructure:"SALT"`
+		SigningKey  string `mapstructure:"SIGNING_KEY"`
 		FrontendUrl string `mapstructure:"FRONTEND_URL"`
 	} `mapstructure:"SECURITY"`
 }
@@ -56,11 +59,12 @@ func Load() *Config {
 		viper.SetDefault("LLM.BASE_URL", "https://api.proxyapi.ru/deepseek/chat/completions")
 		viper.SetDefault("SECURITY.FRONTEND_URL", "http://localhost:3000")
 
-		// Явные привязки ENV variables к путям конфига
 		viper.BindEnv("database.password", "DATABASE_PASS")
 		viper.BindEnv("database.user", "DATABASE_USER")
 		viper.BindEnv("database.name", "DATABASE_NAME")
 		viper.BindEnv("llm.api_key", "LLM_API_KEY")
+		viper.BindEnv("security.salt", "SECURITY_SALT")
+		viper.BindEnv("security.signing_key", "SECURITY_SIGNING_KEY")
 
 		viper.AutomaticEnv()
 
@@ -70,10 +74,9 @@ func Load() *Config {
 
 		config = &Config{}
 		if err := viper.Unmarshal(config); err != nil {
-			panic(fmt.Sprintf("Unable to decode config: %v", err))
+			logger.Log.Fatalf("unable to decode config: %v", err)
 		}
 
-		// Проверка обязательных полей
 		if config.Database.Password == "" {
 			log.Fatal("DATABASE_PASSWORD environment variable is required")
 		}
