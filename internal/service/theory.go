@@ -24,7 +24,13 @@ func GetTheory(n string, forBot bool) (string, error) {
 	}
 	return string(data), nil
 }
-
+func LoadContext() (string, error) {
+	data, err := ioutil.ReadFile(fmt.Sprintf("./static/theory/context.txt"))
+	if err != nil {
+		return "", err
+	}
+	return string(data), nil
+}
 func (t *TheoryService) SendTheory(n string, forBot bool) (string, error) {
 	theory, err := GetTheory(n, forBot)
 	if err != nil {

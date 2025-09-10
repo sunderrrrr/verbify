@@ -24,10 +24,10 @@ func (ur *UserPostgres) ResetPassword(username string, newPassword string) error
 	)
 	_, err = tx.Exec(query, newPassword, username)
 	if err != nil {
-		fmt.Println(err)
 		if err = tx.Rollback(); err != nil {
 			return err
 		}
+		return err
 	}
 	return tx.Commit()
 }
