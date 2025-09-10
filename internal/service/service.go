@@ -1,9 +1,9 @@
 package service
 
 import (
+	"WhyAi/internal/config"
 	models2 "WhyAi/internal/domain"
 	"WhyAi/internal/repository"
-	"os"
 )
 
 type Service struct {
@@ -15,10 +15,6 @@ type Service struct {
 	Essay
 	User
 }
-
-const (
-	initPrompt = "Ты - самый лучший репетитор, который готовит к ЕГЭ по русскому языку 2025. Твоя задача будет состоять в том, чтобы максимально понятно и подробно объяснить конкретное задание. Пользуйся теорией которая тебе будет отправлена ниже. За работу тебе очень хорошо заплатят"
-)
 
 type Theory interface {
 	SendTheory(n string, forBot bool) (string, error)
@@ -54,12 +50,13 @@ type User interface {
 	GetRoleById(userId int) (int, error)
 }
 
-func NewService(repo *repository.Repository) *Service {
+func NewService(cfg *config.Config, repo *repository.Repository) *Service {
+	LLMs := NewLLMService(cfg)
 	return &Service{
 		Auth:   NewAuthService(repo),
 		Theory: NewTheoryService(*repo),
-		LLM:    NewLLMService(os.Getenv("DEEPSEEK_URL"), os.Getenv("DEEPSEEK_TOKEN")),
-		Chat:   NewChatService(*repo),
+		LLM:    LLMs,
+		Chat:   NewChatService(*repo, LLMs),
 		Facts:  NewFactService(),
 		Essay:  NewEssayService(),
 		User:   NewUserService(repo.User),

@@ -32,7 +32,6 @@ func (p *ChatPostgres) CreateChat(userId, taskId int) (int, error) {
 	if err != nil {
 		return -1, err
 	}
-	fmt.Println("111", exists)
 	if exists {
 		logger.Log.Error("Chat already exists for user %d and task %d", userId, taskId)
 		return -1, errors.New("chat already exists")

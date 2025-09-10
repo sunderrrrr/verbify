@@ -59,7 +59,7 @@ func Load() *Config {
 		viper.SetDefault("LLM.BASE_URL", "https://api.proxyapi.ru/deepseek/chat/completions")
 		viper.SetDefault("SECURITY.FRONTEND_URL", "http://localhost:3000")
 
-		viper.BindEnv("database.password", "DATABASE_PASS")
+		viper.BindEnv("database.password", "DATABASE_PASSWORD")
 		viper.BindEnv("database.user", "DATABASE_USER")
 		viper.BindEnv("database.name", "DATABASE_NAME")
 		viper.BindEnv("llm.api_key", "LLM_API_KEY")
@@ -76,7 +76,7 @@ func Load() *Config {
 		if err := viper.Unmarshal(config); err != nil {
 			logger.Log.Fatalf("unable to decode config: %v", err)
 		}
-
+		logger.Log.Infoln(config)
 		if config.Database.Password == "" {
 			log.Fatal("DATABASE_PASSWORD environment variable is required")
 		}

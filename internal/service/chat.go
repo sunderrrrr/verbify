@@ -7,13 +7,18 @@ import (
 )
 
 type ChatService struct {
-	repo   repository.Repository
-	Theory TheoryService
-	LLM    LLMService
+	repo    repository.Repository
+	context string
+	Theory  TheoryService
+	LLM     *LLMService
 }
 
-func NewChatService(repo repository.Repository) *ChatService {
-	return &ChatService{repo: repo}
+func NewChatService(repo repository.Repository, llm *LLMService) *ChatService {
+	context, err := LoadContext()
+	if err != nil {
+		return nil
+	}
+	return &ChatService{repo: repo, LLM: llm, context: context}
 }
 
 func (s *ChatService) Chat(taskId, userId int) ([]domain.Message, error) {
@@ -25,7 +30,7 @@ func (s *ChatService) Chat(taskId, userId int) ([]domain.Message, error) {
 		theory, _ := s.Theory.SendTheory(strconv.Itoa(taskId), false)
 		msg := domain.Message{
 			Role:    "system",
-			Content: initPrompt + theory,
+			Content: s.context + theory,
 		}
 		err := s.AddMessage(taskId, userId, msg)
 		if err != nil {
@@ -58,9 +63,8 @@ func (s *ChatService) AddMessage(taskId, userId int, message domain.Message) err
 		if err := s.repo.AddMessage(taskId, userId, *request); err != nil {
 			return err
 		}
-
 		return nil
-	} else if message.Role == "bot" {
+	} else if message.Role == "bot" || message.Role == "system" {
 		if err := s.repo.AddMessage(taskId, userId, message); err != nil {
 			return err
 		}
@@ -75,7 +79,7 @@ func (s *ChatService) ClearContext(taskId, userId int) error {
 	theory, _ := s.Theory.SendTheory(strconv.Itoa(taskId), false)
 	msg := domain.Message{
 		Role:    "system",
-		Content: initPrompt + theory,
+		Content: s.context + theory,
 	}
 	if err := s.AddMessage(taskId, userId, msg); err != nil {
 		return err

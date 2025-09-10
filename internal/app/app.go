@@ -28,7 +28,7 @@ func Run() {
 	logger.Log.Infoln("Database connection established")
 	//Инициализация зависимостей
 	NewRepository := repository.NewRepository(db)
-	NewService := service.NewService(NewRepository)
+	NewService := service.NewService(cfg, NewRepository)
 	NewHandler := handler.NewHandler(NewService)
 	server := new(WhyAi.Server)
 	logger.Log.Println("Running server")

@@ -1,8 +1,8 @@
 package service
 
 import (
+	"WhyAi/internal/config"
 	"WhyAi/internal/domain"
-	"WhyAi/pkg/logger"
 	"bytes"
 	"encoding/json"
 	"errors"
@@ -15,8 +15,8 @@ type LLMService struct {
 	Token  string
 }
 
-func NewLLMService(apiUrl, token string) *LLMService {
-	return &LLMService{ApiUrl: apiUrl, Token: token}
+func NewLLMService(cfg *config.Config) *LLMService {
+	return &LLMService{ApiUrl: cfg.LLM.BaseURL, Token: cfg.LLM.APIKey}
 }
 
 func (s *LLMService) AskLLM(messages []domain.Message, isEssay bool) (*domain.Message, error) {
@@ -26,13 +26,10 @@ func (s *LLMService) AskLLM(messages []domain.Message, isEssay bool) (*domain.Me
 		Messages:    messages,
 	})
 	if err != nil {
-		logger.Log.Errorf("Error marshaling LLM request: %v", err)
 		return nil, errors.New("request marshal fail")
 	}
-
 	req, err := http.NewRequest("POST", s.ApiUrl, bytes.NewReader(body))
 	if err != nil {
-		logger.Log.Errorf("Error creating LLM request: %v", err)
 		return nil, errors.New("fail to create request")
 	}
 	req.Header.Set("Content-Type", "application/json")
@@ -40,21 +37,16 @@ func (s *LLMService) AskLLM(messages []domain.Message, isEssay bool) (*domain.Me
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		logger.Log.Errorf("Error during LLM request: %v", err)
-		return nil, errors.New("fail request")
+		return nil, err
 	}
 	defer resp.Body.Close()
-
 	var res domain.LLMResponse
 	if err = json.NewDecoder(resp.Body).Decode(&res); err != nil {
-		logger.Log.Errorf("Error decoding LLM response: %v", err)
 		return nil, errors.New("fail to decode response: " + err.Error())
 	}
 	if len(res.Choices) == 0 {
-		logger.Log.Error("LLM response has no choices")
 		return nil, errors.New("no choices in response")
 	}
-
 	ans := &res.Choices[0].Message
 	if isEssay {
 		ans.Content, _ = extractJson(ans.Content)

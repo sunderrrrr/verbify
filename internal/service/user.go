@@ -6,9 +6,10 @@ import (
 	"WhyAi/pkg/logger"
 	"errors"
 	"fmt"
-	"github.com/golang-jwt/jwt"
 	"os"
 	"time"
+
+	"github.com/golang-jwt/jwt"
 )
 
 type UserService struct {
@@ -51,7 +52,6 @@ func (s *UserService) ResetPassword(resetModel domain.UserReset) error {
 		return err
 	}
 	claims, ok := token.Claims.(*ResetClaims)
-	fmt.Println(claims)
 	if !ok || !token.Valid {
 		logger.Log.Error("Invalid token")
 		return errors.New("token claims are not of type jwt.MapClaims or token invalid")
