@@ -40,11 +40,6 @@ type ChatHistoryResponse struct {
 	Messages []Message `json:"messages"`
 }
 
-// Проверка существования чата
-func (c *Chat) Exists() bool {
-	return c.UserID > 0 && c.TaskID > 0
-}
-
 type LLMRequest struct {
 	Model       string    `json:"model"`
 	Messages    []Message `db:"messages" json:"messages"`
