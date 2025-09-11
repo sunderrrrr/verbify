@@ -2,10 +2,11 @@ package middleware
 
 import (
 	"WhyAi/pkg/responser"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"sync"
 	"time"
+
+	"github.com/gin-gonic/gin"
 )
 
 type limitter struct {
@@ -18,8 +19,8 @@ var lim = limitter{
 }
 
 const (
-	resetLimit  = time.Second * 20
-	maxRequests = 3
+	resetLimit  = time.Second * 10
+	maxRequests = 5
 )
 
 func (m *MiddlewareService) RateLimitter(c *gin.Context) {

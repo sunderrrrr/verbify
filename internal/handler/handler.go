@@ -4,9 +4,11 @@ import (
 	"WhyAi/internal/config"
 	"WhyAi/internal/middleware"
 	"WhyAi/internal/service"
+	"WhyAi/pkg/redis"
+	"time"
+
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"time"
 )
 
 type Handler struct {
@@ -14,8 +16,8 @@ type Handler struct {
 	middleware *middleware.MiddlewareService
 }
 
-func NewHandler(service *service.Service) *Handler {
-	return &Handler{service: service, middleware: middleware.NewMiddleware(service)}
+func NewHandler(service *service.Service, redis *redis.Client) *Handler {
+	return &Handler{service: service, middleware: middleware.NewMiddleware(service, redis)}
 }
 
 func (h *Handler) InitRoutes(cfg *config.Config) *gin.Engine {
@@ -51,16 +53,16 @@ func (h *Handler) InitRoutes(cfg *config.Config) *gin.Engine {
 
 			theory := v1.Group("/theory", h.middleware.UserIdentity)
 			{
-				theory.GET("/:id", h.SendTheory)           //Получение теории
-				theory.POST("/:id/chat", h.SendMessage)    //Сообщение по заданию
-				theory.GET("/:id/chat", h.GetOrCreateChat) // Получить чат
-				theory.DELETE("/:id/chat", h.ClearContext) //Стереть контекст
+				theory.GET("/:id", h.SendTheory)                                           //Получение теории
+				theory.POST("/:id/chat", h.middleware.FeatureLimit("chat"), h.SendMessage) //Сообщение по заданию
+				theory.GET("/:id/chat", h.GetOrCreateChat)                                 // Получить чат
+				theory.DELETE("/:id/chat", h.ClearContext)                                 //Стереть контекст
 			}
 
 			essay := v1.Group("/essay", h.middleware.UserIdentity)
 			{
 				essay.GET("/themes", h.GetEssayTasks)
-				essay.POST("/", h.SendEssay)
+				essay.POST("/", h.middleware.FeatureLimit("essay"), h.SendEssay)
 			}
 
 			fact := v1.Group("/fact")

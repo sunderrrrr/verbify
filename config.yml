@@ -12,7 +12,11 @@ database:
   password: ""
   name: ""
   ssl_mode: "disable"
-
+redis:
+  host: "localhost"
+  port: 6379
+  password: ""
+  db: ""
 llm:
   api_key: ""
   base_url: "https://api.proxyapi.ru/deepseek/chat/completions"

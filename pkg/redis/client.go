@@ -1,21 +1,23 @@
 package redis
 
 import (
+	"WhyAi/internal/config"
 	"context"
-	"github.com/redis/go-redis/v9"
 	"time"
+
+	"github.com/redis/go-redis/v9"
 )
 
 type Client struct {
 	cli *redis.Client
 }
 
-func NewClient(addr, password string, db int) *Client {
+func NewClient(cfg *config.Config) *Client {
 	return &Client{
 		cli: redis.NewClient(&redis.Options{
-			Addr:     addr,
-			Password: password,
-			DB:       db,
+			Addr:     cfg.Redis.Host + ":" + cfg.Redis.Port,
+			Password: cfg.Redis.Password,
+			DB:       0,
 		}),
 	}
 }

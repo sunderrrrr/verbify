@@ -7,6 +7,7 @@ import (
 	"WhyAi/internal/repository"
 	"WhyAi/internal/service"
 	"WhyAi/pkg/logger"
+	redis2 "WhyAi/pkg/redis"
 	"fmt"
 )
 
@@ -19,7 +20,7 @@ func Run() {
 	logger.Log.Infof("RUNNING MODE: %s", cfg.Server.Mode)
 	logger.Log.Infof("PORT: %s | FRONTEND: %s", cfg.Server.Port, cfg.Security.FrontendUrl)
 	logger.Log.Infof("DB_HOST: %s | DB_PORT: %s", cfg.Database.Host, cfg.Database.Port)
-
+	redis := redis2.NewClient(cfg)
 	//Подключение к бд
 	db, err := repository.NewDB(cfg)
 	if err != nil {
@@ -29,7 +30,7 @@ func Run() {
 	//Инициализация зависимостей
 	NewRepository := repository.NewRepository(db)
 	NewService := service.NewService(cfg, NewRepository)
-	NewHandler := handler.NewHandler(NewService)
+	NewHandler := handler.NewHandler(NewService, redis)
 	server := new(WhyAi.Server)
 	logger.Log.Println("Running server")
 	if err = server.Run(cfg, NewHandler); err != nil {

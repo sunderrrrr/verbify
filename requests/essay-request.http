@@ -1,5 +1,5 @@
 ### Получить массив тем
-GET http://localhost:8090/api/v1/essay
+GET http://localhost:8090/api/v1/essay/themes
 
 
 ### Отправка сочинения на проверку

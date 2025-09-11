@@ -2,7 +2,7 @@ package service
 
 import (
 	"WhyAi/internal/config"
-	models2 "WhyAi/internal/domain"
+	"WhyAi/internal/domain"
 	"WhyAi/internal/repository"
 )
 
@@ -14,51 +14,56 @@ type Service struct {
 	Facts
 	Essay
 	User
+	Subscription
 }
 
 type Theory interface {
 	SendTheory(n string, forBot bool) (string, error)
 }
 type Auth interface {
-	CreateUser(user models2.User) (int, error)
-	GenerateToken(user models2.AuthUser) (string, error)
-	ParseToken(token string) (models2.User, error)
+	CreateUser(user domain.User) (int, error)
+	GenerateToken(user domain.AuthUser) (string, error)
+	ParseToken(token string) (domain.User, error)
 }
 
 type LLM interface {
-	AskLLM(messages []models2.Message, isEssay bool) (*models2.Message, error)
+	AskLLM(messages []domain.Message, isEssay bool) (*domain.Message, error)
 }
 
 type Chat interface {
-	Chat(taskId, userId int) ([]models2.Message, error)
-	AddMessage(taskId int, userId int, message models2.Message) error
+	Chat(taskId, userId int) ([]domain.Message, error)
+	AddMessage(taskId int, userId int, message domain.Message) error
 	ClearContext(taskId, userId int) error
 }
 
 type Facts interface {
-	GetFacts() ([]models2.Fact, error)
+	GetFacts() ([]domain.Fact, error)
 }
 type Essay interface {
-	GetEssayThemes() ([]models2.EssayTheme, error)
-	GenerateUserPrompt(request models2.EssayRequest) (string, error)
-	ProcessEssayRequest(request models2.EssayRequest) (*models2.EssayResponse, error)
+	GetEssayThemes() ([]domain.EssayTheme, error)
+	GenerateUserPrompt(request domain.EssayRequest) (string, error)
+	ProcessEssayRequest(request domain.EssayRequest) (*domain.EssayResponse, error)
 }
 type User interface {
-	ResetPassword(resetModel models2.UserReset) error
-	ResetPasswordRequest(email models2.ResetRequest) error
+	ResetPassword(resetModel domain.UserReset) error
+	ResetPasswordRequest(email domain.ResetRequest) error
 	GeneratePasswordResetToken(email, signingKey string) (string, error)
 	GetRoleById(userId int) (int, error)
+}
+type Subscription interface {
+	GetPlans(userId int) (*domain.Limits, error)
 }
 
 func NewService(cfg *config.Config, repo *repository.Repository) *Service {
 	LLMs := NewLLMService(cfg)
 	return &Service{
-		Auth:   NewAuthService(repo),
-		Theory: NewTheoryService(*repo),
-		LLM:    LLMs,
-		Chat:   NewChatService(*repo, LLMs),
-		Facts:  NewFactService(),
-		Essay:  NewEssayService(),
-		User:   NewUserService(repo.User),
+		Auth:         NewAuthService(repo),
+		Theory:       NewTheoryService(*repo),
+		LLM:          LLMs,
+		Chat:         NewChatService(*repo, LLMs),
+		Facts:        NewFactService(),
+		Essay:        NewEssayService(),
+		User:         NewUserService(repo.User),
+		Subscription: NewSubscriptionService(repo),
 	}
 }

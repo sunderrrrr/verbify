@@ -5,6 +5,7 @@ import (
 	"WhyAi/pkg/logger"
 	"database/sql"
 	"fmt"
+
 	"github.com/jmoiron/sqlx"
 )
 
@@ -18,7 +19,7 @@ func NewAuthPostgres(db *sqlx.DB) *AuthPostgres {
 
 func (a *AuthPostgres) SignUp(user domain.User) (int, error) {
 	var id int
-	query := fmt.Sprintf(`INSERT INTO %s (name, email, pass_hash, user_type, sub_level) VALUES ($1, $2,$3, 1, 2) RETURNING id`, userDb)
+	query := fmt.Sprintf(`INSERT INTO %s (name, email, pass_hash, user_type, sub_level) VALUES ($1, $2,$3, 1, 1) RETURNING id`, userDb)
 	result := a.db.QueryRow(query, user.Name, user.Email, user.Password)
 	err := result.Scan(&id)
 	if err != nil {

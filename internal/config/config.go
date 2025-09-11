@@ -24,7 +24,12 @@ type Config struct {
 		Name     string `mapstructure:"NAME"`
 		SSLMode  string `mapstructure:"SSL_MODE"`
 	} `mapstructure:"DATABASE"`
-
+	Redis struct {
+		Host     string `mapstructure:"HOST"`
+		Port     string `mapstructure:"PORT"`
+		Password string `mapstructure:"PASSWORD"`
+		DB       string `mapstructure:"DB"`
+	} `mapstructure:"REDIS"`
 	LLM struct {
 		APIKey  string `mapstructure:"API_KEY"`
 		BaseURL string `mapstructure:"BASE_URL"`
@@ -65,18 +70,19 @@ func Load() *Config {
 		viper.BindEnv("llm.api_key", "LLM_API_KEY")
 		viper.BindEnv("security.salt", "SECURITY_SALT")
 		viper.BindEnv("security.signing_key", "SECURITY_SIGNING_KEY")
+		viper.BindEnv("redis.password", "REDIS_PASSWORD")
+		viper.BindEnv("redis.db", "REDIS_DB")
 
 		viper.AutomaticEnv()
 
 		if err := viper.ReadInConfig(); err != nil {
-			log.Printf("Warning: Config file not found: %v", err)
+			log.Printf("warning: Config file not found: %v", err)
 		}
 
 		config = &Config{}
 		if err := viper.Unmarshal(config); err != nil {
 			logger.Log.Fatalf("unable to decode config: %v", err)
 		}
-		logger.Log.Infoln(config)
 		if config.Database.Password == "" {
 			log.Fatal("DATABASE_PASSWORD environment variable is required")
 		}
