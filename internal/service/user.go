@@ -9,14 +9,14 @@ import (
 	"os"
 	"time"
 
-	"github.com/golang-jwt/jwt"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 type UserService struct {
 	repo repository.User
 }
 type ResetClaims struct {
-	jwt.StandardClaims
+	jwt.RegisteredClaims
 	Email string `json:"email"`
 }
 
@@ -29,9 +29,9 @@ func (s *UserService) GeneratePasswordResetToken(email, signingKey string) (stri
 		return "", errors.New("email is empty")
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &ResetClaims{
-		jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(tokenTTL / 72).Unix(),
-			IssuedAt:  time.Now().Unix(),
+		jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(tokenTTL / 72)),
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
 		},
 		email,
 	})
