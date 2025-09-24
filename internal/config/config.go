@@ -34,6 +34,10 @@ type Config struct {
 		APIKey  string `mapstructure:"API_KEY"`
 		BaseURL string `mapstructure:"BASE_URL"`
 	} `mapstructure:"LLM"`
+	Payment struct {
+		ApiKey  string `mapstructure:"API_KEY"`
+		BaseURL string `mapstructure:"BASE_URL"`
+	} `mapstructure:"PAYMENT"`
 
 	Security struct {
 		Salt        string `mapstructure:"SALT"`
@@ -72,7 +76,7 @@ func Load() *Config {
 		viper.BindEnv("security.signing_key", "SECURITY_SIGNING_KEY")
 		viper.BindEnv("redis.password", "REDIS_PASSWORD")
 		viper.BindEnv("redis.db", "REDIS_DB")
-
+		viper.BindEnv("payment.api_key", "PAYMENT_API_KEY")
 		viper.AutomaticEnv()
 
 		if err := viper.ReadInConfig(); err != nil {

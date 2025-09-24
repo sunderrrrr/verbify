@@ -20,6 +20,7 @@ redis:
 llm:
   api_key: ""
   base_url: "https://api.proxyapi.ru/deepseek/chat/completions"
-
+payment:
+  base_url: "http://localhost:8080"
 security:
   frontend_url: "http://localhost:3000"

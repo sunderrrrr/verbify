@@ -28,10 +28,16 @@ type Auth interface {
 
 type User interface {
 	GetRoleById(userId int) (int, error)
+	GetUserById(userId int) (*domain.User, error)
 	ResetPassword(username string, newPassword string) error
 }
 type Subscription interface {
 	GetFeatureLimits(userId int) (*domain.Limits, error)
+	GetPlanById(id int) (*domain.Plan, error)
+	GetAllPlans() ([]domain.Plan, error)
+	SetSubscription(userId int, subscriptionId int) error
+	CreateTransaction(payment *domain.Payment) error
+	ActivateSubscription(paymentId string) error
 }
 
 func NewRepository(db *sqlx.DB) *Repository {

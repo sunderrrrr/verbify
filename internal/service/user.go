@@ -13,19 +13,18 @@ import (
 )
 
 type UserService struct {
-	repo repository.User
+	repo *repository.Repository
 }
 type ResetClaims struct {
 	jwt.RegisteredClaims
 	Email string `json:"email"`
 }
 
-func NewUserService(repo repository.User) *UserService {
+func NewUserService(repo *repository.Repository) *UserService {
 	return &UserService{repo: repo}
 }
 func (s *UserService) GeneratePasswordResetToken(email, signingKey string) (string, error) {
 	if email == "" || email == " " {
-		logger.Log.Error("Email is empty")
 		return "", errors.New("email is empty")
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &ResetClaims{
@@ -107,5 +106,22 @@ func (s *UserService) ResetPasswordRequest(email domain.ResetRequest) error {
 		}
 		fmt.Println("Почта отправлена!") */
 	return nil
+
+}
+
+func (s *UserService) GetUserById(userId int) (domain.UserPublicInfo, error) {
+	user, err := s.repo.GetUserById(userId)
+	if err != nil {
+		return domain.UserPublicInfo{}, err
+	}
+	plan, err := s.repo.GetPlanById(user.Subsription)
+	if err != nil {
+		return domain.UserPublicInfo{}, err
+	}
+	return domain.UserPublicInfo{
+		Name:         user.Name,
+		Email:        user.Email,
+		Subscription: plan.Name,
+	}, nil
 
 }

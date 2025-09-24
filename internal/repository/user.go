@@ -1,19 +1,21 @@
 package repository
 
 import (
+	"WhyAi/internal/domain"
 	"fmt"
+
 	"github.com/jmoiron/sqlx"
 )
 
-type UserPostgres struct {
+type UserRepository struct {
 	db *sqlx.DB
 }
 
-func NewUserRepository(db *sqlx.DB) *UserPostgres {
-	return &UserPostgres{db: db}
+func NewUserRepository(db *sqlx.DB) *UserRepository {
+	return &UserRepository{db: db}
 }
 
-func (ur *UserPostgres) ResetPassword(username string, newPassword string) error {
+func (ur *UserRepository) ResetPassword(username string, newPassword string) error {
 	tx, err := ur.db.Begin()
 	if err != nil {
 		return err
@@ -31,7 +33,7 @@ func (ur *UserPostgres) ResetPassword(username string, newPassword string) error
 	}
 	return tx.Commit()
 }
-func (ur *UserPostgres) GetRoleById(userId int) (int, error) {
+func (ur *UserRepository) GetRoleById(userId int) (int, error) {
 	var role int
 	query := fmt.Sprintf("SELECT user_type FROM %s WHERE id=$1", userDb)
 	err := ur.db.Get(&role, query, userId)
@@ -39,4 +41,14 @@ func (ur *UserPostgres) GetRoleById(userId int) (int, error) {
 		return 0, err
 	}
 	return role, nil
+}
+
+func (ur *UserRepository) GetUserById(userId int) (*domain.User, error) {
+	var user domain.User
+	query := `SELECT name, email, sub_level from users WHERE id=$1`
+	if err := ur.db.Get(&user, query, userId); err != nil {
+		return nil, err
+	}
+	return &user, nil
+
 }

@@ -3,16 +3,16 @@ CREATE TABLE plans (
                        name TEXT NOT NULL UNIQUE,
                        essay_limit INT NOT NULL DEFAULT 0,
                        chat_limit INT NOT NULL DEFAULT 0,
-                       created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-                       updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+                       price INT DEFAULT 100,
+                       created_at TIMESTAMPTZ DEFAULT now(),
+                       updated_at TIMESTAMPTZ DEFAULT now()
 );
 
--- Примеры тарифов
-INSERT INTO plans (name, essay_limit,   chat_limit)
+INSERT INTO plans (name, essay_limit, chat_limit, price)
 VALUES
-    ('free', 5, 10),
-    ('pro', 10, 50),
-    ('premium', 100, 500);
+    ('free', 5, 10, 0),
+    ('pro', 10, 50, 250),
+    ('premium', 100, 500, 500);
 
 CREATE TABLE subscriptions (
                                id SERIAL PRIMARY KEY,

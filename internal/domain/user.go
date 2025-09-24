@@ -21,3 +21,9 @@ type UserReset struct {
 type ResetRequest struct {
 	Login string `json:"login" binding:"required"`
 }
+
+type UserPublicInfo struct {
+	Name         string `json:"name"`
+	Email        string `json:"email"`
+	Subscription string `json:"subscription"`
+}

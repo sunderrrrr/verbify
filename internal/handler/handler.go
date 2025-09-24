@@ -14,10 +14,11 @@ import (
 type Handler struct {
 	service    *service.Service
 	middleware *middleware.MiddlewareService
+	cfg        *config.Config
 }
 
-func NewHandler(service *service.Service, redis *redis.Client) *Handler {
-	return &Handler{service: service, middleware: middleware.NewMiddleware(service, redis)}
+func NewHandler(service *service.Service, redis *redis.Client, cfg *config.Config) *Handler {
+	return &Handler{service: service, middleware: middleware.NewMiddleware(service, redis), cfg: cfg}
 }
 
 func (h *Handler) InitRoutes(cfg *config.Config) *gin.Engine {
@@ -49,6 +50,12 @@ func (h *Handler) InitRoutes(cfg *config.Config) *gin.Engine {
 			{
 				user.GET("/info", h.GetUserInfo)
 				user.PUT("/update", h.UpdateUserInfo)
+				subscription := user.Group("subscription")
+				{
+					subscription.GET("/plans", h.GetPlans)
+					subscription.POST("/plan", h.SubscriptionCreate)
+					subscription.POST("/webhook", h.Webhook)
+				}
 			}
 
 			theory := v1.Group("/theory", h.middleware.UserIdentity)

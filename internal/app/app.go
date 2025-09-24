@@ -19,6 +19,7 @@ func Run() {
 	fmt.Println("Version: 1.0.0")
 	logger.Log.Infof("RUNNING MODE: %s", cfg.Server.Mode)
 	logger.Log.Infof("PORT: %s | FRONTEND: %s", cfg.Server.Port, cfg.Security.FrontendUrl)
+	logger.Log.Infof("PAYMENT SERVICE URL %s", cfg.Payment.BaseURL)
 	logger.Log.Infof("DB_HOST: %s | DB_PORT: %s", cfg.Database.Host, cfg.Database.Port)
 	redis := redis2.NewClient(cfg)
 	//Подключение к бд
@@ -30,7 +31,7 @@ func Run() {
 	//Инициализация зависимостей
 	NewRepository := repository.NewRepository(db)
 	NewService := service.NewService(cfg, NewRepository)
-	NewHandler := handler.NewHandler(NewService, redis)
+	NewHandler := handler.NewHandler(NewService, redis, cfg)
 	server := new(WhyAi.Server)
 	logger.Log.Println("Running server")
 	if err = server.Run(cfg, NewHandler); err != nil {

@@ -49,9 +49,15 @@ type User interface {
 	ResetPasswordRequest(email domain.ResetRequest) error
 	GeneratePasswordResetToken(email, signingKey string) (string, error)
 	GetRoleById(userId int) (int, error)
+	GetUserById(userId int) (domain.UserPublicInfo, error)
 }
 type Subscription interface {
 	GetPlans(userId int) (*domain.Limits, error)
+	GetPlanById(id int) (*domain.Plan, error)
+	GetAllPlans() ([]domain.Plan, error)
+	SetSubscription(userId int, subscriptionId int) error
+	CreateSubscriptionURL(userId int, subscriptionId int) (string, error)
+	ActivateSubscription(paymentId string) error
 }
 
 func NewService(cfg *config.Config, repo *repository.Repository) *Service {
@@ -63,7 +69,7 @@ func NewService(cfg *config.Config, repo *repository.Repository) *Service {
 		Chat:         NewChatService(*repo, LLMs),
 		Facts:        NewFactService(),
 		Essay:        NewEssayService(),
-		User:         NewUserService(repo.User),
-		Subscription: NewSubscriptionService(repo),
+		User:         NewUserService(repo),
+		Subscription: NewSubscriptionService(cfg, repo),
 	}
 }

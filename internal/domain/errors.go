@@ -35,3 +35,7 @@ const (
 	EssayGraduateError   = "failed to graduate essay"
 	FactsGetError        = "failed to get facts"
 )
+
+const (
+	CreatePaymentLinkError = "failed to create payment link"
+)
