@@ -18,7 +18,17 @@ services:
       - whyai-net
     ports:
       - "5436:5432"
-
+  nginx:
+    image: nginx:latest
+    volumes:
+      - ./devops/nginx/prod.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - frontend
+      - backend
+    ports:
+      - "80:80"
+    networks:
+      - whyai-net
   migrate:
     image: migrate/migrate
     depends_on:
@@ -55,16 +65,31 @@ services:
   frontend:
     build:
       context: ./frontend/whyai-fr
+      target: production
     env_file:
       - ./frontend/whyai-fr/.env
     networks:
       - whyai-net
     ports:
       - "3000:3000"
-
+  redis:
+    image: redis:7-alpine
+    restart: always
+    command: redis-server --save 60 1 --loglevel warning --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    networks:
+      - whyai-net
+    ports:
+      - "6379:6379"
 volumes:
   pgdata:
-
+  redisdata:
 networks:
   whyai-net:
     driver: bridge
