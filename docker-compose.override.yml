@@ -1,0 +1,80 @@
+
+services:
+  postgres:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - whyai-net
+    ports:
+      - "5436:5432"
+  nginx:
+    image: nginx:latest
+    volumes:
+      - ./nginx/dev.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - frontend
+      - backend
+    ports:
+      - "80:80"
+    networks:
+      - whyai-net
+  migrate:
+    image: migrate/migrate
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./backend/schema:/schema
+    command:
+      [
+        "-path", "/schema",
+        "-database=postgres://${DB_USER}:${DB_PASS}@postgres:5432/${DB_NAME}?sslmode=disable",
+        "up"
+      ]
+    env_file:
+      - ./backend/.env
+    networks:
+      - whyai-net
+
+  backend:
+    build:
+      context: ./backend
+    env_file:
+      - ./backend/.env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    networks:
+      - whyai-net
+    ports:
+      - "8090:8090"
+
+  frontend:
+    build:
+      context: ./frontend/whyai-fr
+    env_file:
+      - ./frontend/whyai-fr/.env
+    networks:
+      - whyai-net
+    ports:
+      - "3000:3000"
+
+volumes:
+  pgdata:
+
+networks:
+  whyai-net:
+    driver: bridge
