@@ -9,35 +9,68 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type visitor struct {
+	count    int
+	lastSeen time.Time
+}
+
 type limitter struct {
-	count map[string]int
-	mu    sync.RWMutex
+	visitors map[string]*visitor
+	mu       sync.RWMutex
 }
 
 var lim = limitter{
-	count: make(map[string]int),
+	visitors: make(map[string]*visitor),
 }
 
 const (
-	resetLimit  = time.Second * 10
-	maxRequests = 5
+	windowSize   = 30 * time.Second
+	maxRequests  = 20
+	cleanupEvery = time.Minute // Очистка старых записей каждую минуту
 )
+
+func init() {
+	// Запускаем горутину для очистки старых записей
+	go func() {
+		for {
+			time.Sleep(cleanupEvery)
+			lim.mu.Lock()
+			for ip, v := range lim.visitors {
+				if time.Since(v.lastSeen) > windowSize {
+					delete(lim.visitors, ip)
+				}
+			}
+			lim.mu.Unlock()
+		}
+	}()
+}
 
 func (m *MiddlewareService) RateLimitter(c *gin.Context) {
 	ip := c.ClientIP()
-	lim.mu.RLock()
-	defer lim.mu.RUnlock()
-	lim.count[ip]++
-	if lim.count[ip] == 1 {
-		time.AfterFunc(resetLimit, func() {
-			lim.mu.Lock()
-			delete(lim.count, ip)
-			lim.mu.Unlock()
-		})
+	now := time.Now()
+
+	lim.mu.Lock()
+	defer lim.mu.Unlock()
+
+	v, exists := lim.visitors[ip]
+	if !exists {
+		v = &visitor{count: 0, lastSeen: now}
+		lim.visitors[ip] = v
 	}
-	if lim.count[ip] > maxRequests {
+
+	if now.Sub(v.lastSeen) > windowSize {
+		v.count = 0
+		v.lastSeen = now
+	}
+
+	if v.count >= maxRequests {
 		responser.NewErrorResponse(c, http.StatusTooManyRequests, "too many requests")
 		c.Abort()
+		return
 	}
+
+	v.count++
+	v.lastSeen = now
+
 	c.Next()
 }

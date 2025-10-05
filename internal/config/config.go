@@ -2,6 +2,7 @@ package config
 
 import (
 	"WhyAi/pkg/logger"
+	"fmt"
 	"log"
 	"sync"
 
@@ -51,12 +52,11 @@ var (
 	once   sync.Once
 )
 
-func Load() *Config {
+func Load() (*Config, error) {
 	once.Do(func() {
 		viper.SetConfigName("config")
 		viper.SetConfigType("yaml")
 		viper.AddConfigPath(".")
-		viper.AddConfigPath("./config")
 		if viper.GetString("server.mode") != "PROD" {
 			if err := godotenv.Load(); err != nil {
 				log.Printf("Warning: .env file not found: %v", err)
@@ -80,7 +80,7 @@ func Load() *Config {
 		viper.AutomaticEnv()
 
 		if err := viper.ReadInConfig(); err != nil {
-			log.Printf("warning: Config file not found: %v", err)
+			fmt.Printf("Error reading config file, %s", err)
 		}
 
 		config = &Config{}
@@ -93,5 +93,5 @@ func Load() *Config {
 
 	})
 
-	return config
+	return config, nil
 }

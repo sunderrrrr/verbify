@@ -4,8 +4,9 @@ import (
 	"WhyAi/internal/domain"
 	"WhyAi/pkg/logger"
 	"WhyAi/pkg/responser"
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 func (h *Handler) SendTheory(c *gin.Context) {
@@ -15,7 +16,7 @@ func (h *Handler) SendTheory(c *gin.Context) {
 		return
 	}
 
-	theory, err := h.service.Theory.SendTheory(n, false)
+	theory, err := h.service.Theory.SendTheory(n)
 	if err != nil {
 		responser.NewErrorResponse(c, http.StatusInternalServerError, domain.GetTheoryError)
 		logger.Log.Errorf("failed to send theory: %v", err)

@@ -43,7 +43,6 @@ func (a *AuthPostgres) GetUser(username, password string, login bool) (domain.Us
 	}
 	err := result.Scan(&user.Id, &user.Name, &user.Email, &user.Password, &user.UserType, &user.Subsription)
 	if err != nil {
-		logger.Log.Error("Error while getting user: %v", err)
 		return domain.User{}, err
 	}
 	return user, nil

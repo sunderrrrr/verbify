@@ -3,6 +3,8 @@ package service
 import (
 	"WhyAi/internal/config"
 	"WhyAi/internal/domain"
+	"WhyAi/pkg/logger"
+	"WhyAi/pkg/sender"
 	"bytes"
 	"encoding/json"
 	"errors"
@@ -21,29 +23,35 @@ func NewLLMService(cfg *config.Config) *LLMService {
 
 func (s *LLMService) AskLLM(messages []domain.Message, isEssay bool) (*domain.Message, error) {
 	body, err := json.Marshal(domain.LLMRequest{
-		Model:       "deepseek-chat",
+		Model:       "gpt-4.1-nano",
 		Temperature: 0,
 		Messages:    messages,
 	})
 	if err != nil {
 		return nil, errors.New("request marshal fail")
 	}
+
 	req, err := http.NewRequest("POST", s.ApiUrl, bytes.NewReader(body))
 	if err != nil {
 		return nil, errors.New("fail to create request")
 	}
+
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+s.Token)
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := sender.Client.Do(req)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
+
 	var res domain.LLMResponse
+	logger.Log.Infof("response raw %v", resp)
+	logger.Log.Infof("response code %v", resp.StatusCode)
 	if err = json.NewDecoder(resp.Body).Decode(&res); err != nil {
 		return nil, errors.New("fail to decode response: " + err.Error())
 	}
+	logger.Log.Infof("response: %v", res)
 	if len(res.Choices) == 0 {
 		return nil, errors.New("no choices in response")
 	}

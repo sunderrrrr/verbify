@@ -8,12 +8,17 @@ import (
 	"WhyAi/internal/service"
 	"WhyAi/pkg/logger"
 	redis2 "WhyAi/pkg/redis"
+	"context"
 	"fmt"
 )
 
 func Run() {
-
-	cfg := config.Load()
+	ctx := context.Background()
+	cfg, err := config.Load()
+	if err != nil {
+		logger.Log.Fatalf("Error loading config: %s", err)
+	}
+	logger.Log.Infoln(cfg)
 	fmt.Println("Initializing...")
 	fmt.Println("\n██╗   ██╗███████╗██████╗ ██████╗ ██╗███████╗██╗   ██╗\n██║   ██║██╔════╝██╔══██╗██╔══██╗██║██╔════╝╚██╗ ██╔╝\n██║   ██║█████╗  ██████╔╝██████╔╝██║█████╗   ╚████╔╝ \n╚██╗ ██╔╝██╔══╝  ██╔══██╗██╔══██╗██║██╔══╝    ╚██╔╝  \n ╚████╔╝ ███████╗██║  ██║██████╔╝██║██║        ██║   \n  ╚═══╝  ╚══════╝╚═╝  ╚═╝╚═════╝ ╚═╝╚═╝        ╚═╝   \n                                                     \n")
 	fmt.Println("Version: 1.0.0")
@@ -22,6 +27,9 @@ func Run() {
 	logger.Log.Infof("PAYMENT SERVICE URL %s", cfg.Payment.BaseURL)
 	logger.Log.Infof("DB_HOST: %s | DB_PORT: %s", cfg.Database.Host, cfg.Database.Port)
 	redis := redis2.NewClient(cfg)
+	if err := redis.Ping(ctx); err != nil {
+		logger.Log.Fatalf("Error connecting to redis: %s", err)
+	}
 	//Подключение к бд
 	db, err := repository.NewDB(cfg)
 	if err != nil {

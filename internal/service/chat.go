@@ -27,7 +27,7 @@ func (s *ChatService) Chat(taskId, userId int) ([]domain.Message, error) {
 		return nil, err
 	}
 	if req == false {
-		theory, _ := s.Theory.SendTheory(strconv.Itoa(taskId), false)
+		theory, _ := s.Theory.SendTheory(strconv.Itoa(taskId))
 		msg := domain.Message{
 			Role:    "system",
 			Content: s.context + theory,
@@ -76,7 +76,7 @@ func (s *ChatService) ClearContext(taskId, userId int) error {
 	if err := s.repo.ClearContext(taskId, userId); err != nil {
 		return err
 	}
-	theory, _ := s.Theory.SendTheory(strconv.Itoa(taskId), false)
+	theory, _ := s.Theory.SendTheory(strconv.Itoa(taskId))
 	msg := domain.Message{
 		Role:    "system",
 		Content: s.context + theory,

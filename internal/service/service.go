@@ -18,7 +18,7 @@ type Service struct {
 }
 
 type Theory interface {
-	SendTheory(n string, forBot bool) (string, error)
+	SendTheory(n string) (string, error)
 }
 type Auth interface {
 	CreateUser(user domain.User) (int, error)
@@ -63,13 +63,13 @@ type Subscription interface {
 func NewService(cfg *config.Config, repo *repository.Repository) *Service {
 	LLMs := NewLLMService(cfg)
 	return &Service{
-		Auth:         NewAuthService(repo),
+		Auth:         NewAuthService(cfg, repo),
 		Theory:       NewTheoryService(*repo),
 		LLM:          LLMs,
 		Chat:         NewChatService(*repo, LLMs),
 		Facts:        NewFactService(),
 		Essay:        NewEssayService(),
-		User:         NewUserService(repo),
+		User:         NewUserService(cfg, repo),
 		Subscription: NewSubscriptionService(cfg, repo),
 	}
 }

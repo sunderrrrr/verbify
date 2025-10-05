@@ -5,6 +5,7 @@ import (
 	"WhyAi/pkg/logger"
 	"fmt"
 	"io/ioutil"
+	"strconv"
 )
 
 type TheoryService struct {
@@ -15,7 +16,7 @@ func NewTheoryService(repo repository.Repository) *TheoryService {
 	return &TheoryService{repo: repo}
 }
 
-func GetTheory(n string, forBot bool) (string, error) {
+func GetTheory(n string) (string, error) {
 
 	data, err := ioutil.ReadFile(fmt.Sprintf("./static/theory/%s.txt", n))
 	if err != nil {
@@ -31,8 +32,12 @@ func LoadContext() (string, error) {
 	}
 	return string(data), nil
 }
-func (t *TheoryService) SendTheory(n string, forBot bool) (string, error) {
-	theory, err := GetTheory(n, forBot)
+func (t *TheoryService) SendTheory(n string) (string, error) {
+	_, err := strconv.Atoi(n)
+	if err != nil {
+		return "", err
+	}
+	theory, err := GetTheory(n)
 	if err != nil {
 		logger.Log.Error("Error while getting theory: %v", err)
 		return "", err

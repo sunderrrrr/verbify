@@ -2,16 +2,20 @@ package middleware
 
 import (
 	"WhyAi/internal/domain"
+	"WhyAi/pkg/logger"
 	"WhyAi/pkg/responser"
 	"errors"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"strings"
+
+	"github.com/gin-gonic/gin"
 )
 
 // Промежуточкая аунтентификация пользователя
 func (m *MiddlewareService) UserIdentity(c *gin.Context) {
 	header := c.GetHeader(authorizationHeader)
+	origin := c.Request.Header.Get("Origin")
+	logger.Log.Infof("DEBUG: ORIGIN: %s", origin)
 	if header == "" {
 		responser.NewErrorResponse(c, http.StatusUnauthorized, domain.UnAuthorizedError)
 		return

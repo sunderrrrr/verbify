@@ -46,6 +46,7 @@ func (m *MiddlewareService) FeatureLimit(feature string) gin.HandlerFunc {
 		}
 		if int(count) > limit {
 			responser.NewErrorResponse(c, http.StatusTooManyRequests, "you reached the limit")
+			logger.Log.Infof("feature %s limit %d/%d", feature, count, limit)
 			c.Abort()
 			return
 		}

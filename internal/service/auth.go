@@ -1,22 +1,24 @@
 package service
 
 import (
+	"WhyAi/internal/config"
 	"WhyAi/internal/domain"
 	"WhyAi/internal/repository"
-	"WhyAi/pkg/logger"
 	"crypto/sha1"
 	"errors"
 	"fmt"
-	"github.com/golang-jwt/jwt/v5"
 	"time"
+
+	"github.com/golang-jwt/jwt/v5"
 )
 
 type AuthService struct {
 	repo repository.Auth
+	cfg  *config.Config
 }
 
-func NewAuthService(repo repository.Auth) *AuthService {
-	return &AuthService{repo: repo}
+func NewAuthService(cfg *config.Config, repo repository.Auth) *AuthService {
+	return &AuthService{repo: repo, cfg: cfg}
 }
 
 type tokenClaims struct {
@@ -25,19 +27,14 @@ type tokenClaims struct {
 }
 
 const (
-	salt       = "gdfgdf789fsd798ghdfh9d8f79d8fs"                            //абфускатор пароля "соль"
-	signingKey = "js786b87^*bn98v79&(*jhkjhKj6kiu6iU^^u6iU^uk6tiuufv6biu^u6" //ключ подписи
-	tokenTTL   = time.Hour * 12                                              //время действия токена
+	tokenTTL = time.Hour * 2
 )
 
 func (s *AuthService) GenerateToken(login domain.AuthUser) (string, error) {
 	//get user from db
-
-	user, err := s.repo.GetUser(login.Email, generatePasswordHash(login.Password), true)
-
+	user, err := s.repo.GetUser(login.Email, generatePasswordHash(login.Password, s.cfg.Security.Salt), true)
 	if err != nil {
-		logger.Log.Errorf("AuthService.GenerateToken error: %v", err.Error())
-		return "fail", err
+		return "", err
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &tokenClaims{
 		jwt.RegisteredClaims{
@@ -46,7 +43,7 @@ func (s *AuthService) GenerateToken(login domain.AuthUser) (string, error) {
 		},
 		user.Id,
 	})
-	return token.SignedString([]byte(signingKey))
+	return token.SignedString([]byte(s.cfg.Security.SigningKey))
 }
 
 func (s *AuthService) ParseToken(accessToken string) (domain.User, error) {
@@ -55,11 +52,9 @@ func (s *AuthService) ParseToken(accessToken string) (domain.User, error) {
 			return nil, errors.New("invalid signing method")
 		}
 
-		return []byte(signingKey), nil
+		return []byte(s.cfg.Security.SigningKey), nil
 	})
 	if err != nil {
-		logger.Log.Errorf("AuthService.ParseToken error: %v", err.Error())
-
 		return domain.User{}, err
 	}
 
@@ -76,12 +71,11 @@ func (s *AuthService) ParseToken(accessToken string) (domain.User, error) {
 }
 
 func (s *AuthService) CreateUser(user domain.User) (int, error) {
-	user.Password = generatePasswordHash(user.Password)
+	user.Password = generatePasswordHash(user.Password, s.cfg.Security.Salt)
 	return s.repo.SignUp(user)
 }
 
-// TODO Дописать получение
-func generatePasswordHash(password string) string {
+func generatePasswordHash(password, salt string) string {
 	hash := sha1.New()
 	hash.Write([]byte(password))
 

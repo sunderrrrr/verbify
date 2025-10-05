@@ -1,30 +1,23 @@
-# Этап сборки
 FROM golang:1.24 AS builder
 
 WORKDIR /app
 
-
 COPY go.mod go.sum ./
-ENV GOPROXY=direct
 RUN go mod download
-
 COPY . .
-RUN go build -o server cmd/main.go
 
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o server ./cmd/main.go
 
 FROM debian:bookworm-slim
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    ca-certificates \
- && rm -rf /var/lib/apt/lists/*
-
 WORKDIR /app
 
-# Копируем бинарник и нужные статические файлы
-COPY --from=builder /app/server .
-COPY --from=builder /app/static ./static
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates tzdata curl bash \
+ && rm -rf /var/lib/apt/lists/*
 
-ENV GIN_MODE=release
+COPY --from=builder /app .
+
 
 EXPOSE 8090
 

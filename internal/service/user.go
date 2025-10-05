@@ -1,6 +1,7 @@
 package service
 
 import (
+	"WhyAi/internal/config"
 	"WhyAi/internal/domain"
 	"WhyAi/internal/repository"
 	"WhyAi/pkg/logger"
@@ -14,22 +15,24 @@ import (
 
 type UserService struct {
 	repo *repository.Repository
+	cfg  *config.Config
 }
 type ResetClaims struct {
 	jwt.RegisteredClaims
 	Email string `json:"email"`
 }
 
-func NewUserService(repo *repository.Repository) *UserService {
-	return &UserService{repo: repo}
+func NewUserService(cfg *config.Config, repo *repository.Repository) *UserService {
+	return &UserService{repo: repo, cfg: cfg}
 }
+
 func (s *UserService) GeneratePasswordResetToken(email, signingKey string) (string, error) {
 	if email == "" || email == " " {
 		return "", errors.New("email is empty")
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &ResetClaims{
 		jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(tokenTTL / 72)),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 		},
 		email,
@@ -44,7 +47,7 @@ func (s *UserService) ResetPassword(resetModel domain.UserReset) error {
 			return nil, errors.New("invalid signing method")
 		}
 
-		return []byte(signingKey), nil
+		return []byte(s.cfg.Security.SigningKey), nil
 	})
 	if err != nil {
 		logger.Log.Error("Error while parsing token: %v", err)
@@ -61,7 +64,7 @@ func (s *UserService) ResetPassword(resetModel domain.UserReset) error {
 		logger.Log.Error("Empty email in token claims")
 		return errors.New("empty email")
 	}
-	return s.repo.ResetPassword(email, generatePasswordHash(resetModel.NewPass))
+	return s.repo.ResetPassword(email, generatePasswordHash(resetModel.NewPass, s.cfg.Security.Salt))
 }
 
 func (s *UserService) GetRoleById(userId int) (int, error) {
@@ -69,7 +72,7 @@ func (s *UserService) GetRoleById(userId int) (int, error) {
 }
 
 func (s *UserService) ResetPasswordRequest(email domain.ResetRequest) error {
-	token, err := s.GeneratePasswordResetToken(email.Login, signingKey)
+	token, err := s.GeneratePasswordResetToken(email.Login, s.cfg.Security.SigningKey)
 	if err != nil {
 		logger.Log.Errorf("Error while generating token: %v", err)
 		return err
@@ -114,7 +117,7 @@ func (s *UserService) GetUserById(userId int) (domain.UserPublicInfo, error) {
 	if err != nil {
 		return domain.UserPublicInfo{}, err
 	}
-	plan, err := s.repo.GetPlanById(user.Subsription)
+	plan, err := s.repo.GetPlanById(user.Subsription - 1)
 	if err != nil {
 		return domain.UserPublicInfo{}, err
 	}

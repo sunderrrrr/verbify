@@ -10,9 +10,9 @@ CREATE TABLE plans (
 
 INSERT INTO plans (name, essay_limit, chat_limit, price)
 VALUES
-    ('free', 5, 10, 0),
-    ('pro', 10, 50, 250),
-    ('premium', 100, 500, 500);
+    ('База', 5, 10, 0),
+    ('Продвинутый', 10, 50, 250),
+    ('Босс ЕГЭ', 100, 500, 500);
 
 CREATE TABLE subscriptions (
                                id SERIAL PRIMARY KEY,

@@ -47,11 +47,13 @@ func (s *SubscriptionService) CreateSubscriptionURL(userId int, subscriptionId i
 	if err != nil {
 		return "", err
 	}
+
 	if plan == nil {
 		return "", errors.New("plan not found")
 	}
+
 	paymentReq := map[string]interface{}{
-		"amount":      float64(plan.Price), // функция возвращает сумму в float
+		"amount":      float64(plan.Price),
 		"currency":    "RUB",
 		"description": fmt.Sprintf("Подписка на %s | UID: %s", plan.Name, userId),
 		"return_url":  "https://your-site.ru/success",
@@ -60,22 +62,21 @@ func (s *SubscriptionService) CreateSubscriptionURL(userId int, subscriptionId i
 			"plan_id": fmt.Sprintf("%d", plan.Id),
 		},
 	}
-	logger.Log.Infoln(paymentReq)
 	body, err := json.Marshal(paymentReq)
 	if err != nil {
 		return "", err
 	}
 	apiUrl := fmt.Sprintf("%s/api/v1/payments", s.cfg.Payment.BaseURL)
-	logger.Log.Infoln(apiUrl)
+
 	req, err := http.NewRequest(http.MethodPost, apiUrl, bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("X-API-Key", s.cfg.Payment.ApiKey)
-	logger.Log.Infoln(s.cfg.Payment.ApiKey)
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return "", err
 	}
 	defer resp.Body.Close()
+
 	if resp.StatusCode != http.StatusOK {
 		return "", errors.New(resp.Status)
 	}
@@ -83,6 +84,7 @@ func (s *SubscriptionService) CreateSubscriptionURL(userId int, subscriptionId i
 	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
 		return "", err
 	}
+
 	payment := domain.Payment{
 		UserId:    userId,
 		PlanId:    plan.Id,

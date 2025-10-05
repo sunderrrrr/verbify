@@ -3,23 +3,23 @@ version: "1.0.0"
 server:
   port: "8090"
   host: "0.0.0.0"
-  mode: "DEV"
+  mode: "PROD"
 
 database:
-  host: "localhost"
+  host: "postgres"
   port: "5432"
   user: ""
   password: ""
   name: ""
   ssl_mode: "disable"
 redis:
-  host: "localhost"
+  host: "redis"
   port: 6379
   password: ""
   db: ""
 llm:
   api_key: ""
-  base_url: "https://api.proxyapi.ru/deepseek/chat/completions"
+  base_url: "https://api.proxyapi.ru/openai/v1/chat/completions"
 payment:
   base_url: "http://localhost:8080"
 security:
