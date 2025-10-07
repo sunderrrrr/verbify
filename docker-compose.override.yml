@@ -18,17 +18,6 @@ services:
       - whyai-net
     ports:
       - "5436:5432"
-  nginx:
-    image: nginx:latest
-    volumes:
-      - ./devops/nginx/dev.conf:/etc/nginx/nginx.conf:ro
-    depends_on:
-      - frontend
-      - backend
-    ports:
-      - "80:80"
-    networks:
-      - whyai-net
   migrate:
     image: migrate/migrate
     depends_on:
