@@ -18,7 +18,6 @@ func Run() {
 	if err != nil {
 		logger.Log.Fatalf("Error loading config: %s", err)
 	}
-	logger.Log.Infoln(cfg)
 	fmt.Println("Initializing...")
 	fmt.Println("\n██╗   ██╗███████╗██████╗ ██████╗ ██╗███████╗██╗   ██╗\n██║   ██║██╔════╝██╔══██╗██╔══██╗██║██╔════╝╚██╗ ██╔╝\n██║   ██║█████╗  ██████╔╝██████╔╝██║█████╗   ╚████╔╝ \n╚██╗ ██╔╝██╔══╝  ██╔══██╗██╔══██╗██║██╔══╝    ╚██╔╝  \n ╚████╔╝ ███████╗██║  ██║██████╔╝██║██║        ██║   \n  ╚═══╝  ╚══════╝╚═╝  ╚═╝╚═════╝ ╚═╝╚═╝        ╚═╝   \n                                                     \n")
 	fmt.Println("Version: 1.0.0")
@@ -35,7 +34,8 @@ func Run() {
 	if err != nil {
 		logger.Log.Fatalf("Error connecting to database: %v", err)
 	}
-	logger.Log.Infoln("Database connection established")
+	logger.Log.Infoln("Database: OK")
+
 	//Инициализация зависимостей
 	NewRepository := repository.NewRepository(db)
 	NewService := service.NewService(cfg, NewRepository)
