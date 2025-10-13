@@ -20,6 +20,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     return (
         <html lang="ru">
+        <meta name="theme-color" content="#fbc497"/>
+        <meta name="apple-mobile-web-app-capable" content="yes"/>
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+
         <head>
         </head>
         <body
@@ -35,14 +39,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         >
         <EmotionCacheProvider>
             <Providers>
-                <AuthInit />
+                <AuthInit/>
                 <AuthWrapper>
                     {children}
                 </AuthWrapper>
-                <CookieWarning />
+                <CookieWarning/>
             </Providers>
         </EmotionCacheProvider>
-        <Footer />
+        <Footer/>
         </body>
         </html>
     );
