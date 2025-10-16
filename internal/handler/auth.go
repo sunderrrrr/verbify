@@ -4,8 +4,9 @@ import (
 	"WhyAi/internal/domain"
 	"WhyAi/pkg/logger"
 	"WhyAi/pkg/responser"
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 func (h *Handler) signUp(c *gin.Context) {
@@ -15,6 +16,9 @@ func (h *Handler) signUp(c *gin.Context) {
 		logger.Log.Errorf("Error while binding input: %v", err)
 		return
 	}
+	input.IP = c.ClientIP()
+	input.Fingerprint = c.PostForm("fingerprint")
+
 	signUp, err := h.service.Auth.CreateUser(input)
 	if err != nil {
 		responser.NewErrorResponse(c, http.StatusUnauthorized, domain.SignUpError)

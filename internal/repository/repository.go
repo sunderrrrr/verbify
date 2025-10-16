@@ -11,6 +11,7 @@ type Repository struct {
 	Auth
 	User
 	Subscription
+	Antifraud
 }
 
 type Chat interface {
@@ -40,12 +41,17 @@ type Subscription interface {
 	ActivateSubscription(paymentId string) error
 }
 
+type Antifraud interface {
+	CheckFraud(ip, fingerprint string) (bool, error)
+}
+
 func NewRepository(db *sqlx.DB) *Repository {
 	return &Repository{
 		Auth:         NewAuthPostgres(db),
 		Chat:         NewChatPostgres(db),
 		User:         NewUserRepository(db),
 		Subscription: NewSubscriptionRepository(db),
+		Antifraud:    NewAntifraudRepository(db),
 	}
 
 }

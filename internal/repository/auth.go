@@ -19,8 +19,8 @@ func NewAuthPostgres(db *sqlx.DB) *AuthPostgres {
 
 func (a *AuthPostgres) SignUp(user domain.User) (int, error) {
 	var id int
-	query := fmt.Sprintf(`INSERT INTO %s (name, email, pass_hash, user_type, sub_level) VALUES ($1, $2,$3, 1, 1) RETURNING id`, userDb)
-	result := a.db.QueryRow(query, user.Name, user.Email, user.Password)
+	query := fmt.Sprintf(`INSERT INTO %s (name, email, pass_hash, ip, fingerprint, user_type, sub_level) VALUES ($1, $2, $3, $4, $5, 1, 1) RETURNING id`, userDb)
+	result := a.db.QueryRow(query, user.Name, user.Email, user.Password, user.IP, user.Fingerprint)
 	err := result.Scan(&id)
 	if err != nil {
 		logger.Log.Error("Error while signing up user: %v", err)
@@ -41,7 +41,7 @@ func (a *AuthPostgres) GetUser(username, password string, login bool) (domain.Us
 		query := fmt.Sprintf(`SELECT id, name, email FROM %s WHERE email = $1`, userDb)
 		result = a.db.QueryRow(query, username)
 	}
-	err := result.Scan(&user.Id, &user.Name, &user.Email, &user.Password, &user.UserType, &user.Subsription)
+	err := result.Scan(&user.Id, &user.Name, &user.Email, &user.Password, &user.IP, &user.Fingerprint, &user.UserType, &user.Subsription)
 	if err != nil {
 		return domain.User{}, err
 	}

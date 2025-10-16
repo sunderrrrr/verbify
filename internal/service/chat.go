@@ -9,16 +9,16 @@ import (
 type ChatService struct {
 	repo    repository.Repository
 	context string
-	Theory  TheoryService
+	Theory  *TheoryService
 	LLM     *LLMService
 }
 
-func NewChatService(repo repository.Repository, llm *LLMService) *ChatService {
+func NewChatService(repo repository.Repository, llm *LLMService, theory *TheoryService) *ChatService {
 	context, err := LoadContext()
 	if err != nil {
 		return nil
 	}
-	return &ChatService{repo: repo, LLM: llm, context: context}
+	return &ChatService{repo: repo, LLM: llm, Theory: theory, context: context}
 }
 
 func (s *ChatService) Chat(taskId, userId int) ([]domain.Message, error) {

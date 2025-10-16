@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"WhyAi/pkg/logger"
 	"WhyAi/pkg/responser"
 	"net/http"
 	"sync"
@@ -51,7 +52,11 @@ func (m *MiddlewareService) RateLimitter(c *gin.Context) {
 
 	lim.mu.Lock()
 	defer lim.mu.Unlock()
-
+	for name, values := range c.Request.Header {
+		for _, value := range values {
+			logger.Log.Infof("  %s: %s\n", name, value)
+		}
+	}
 	v, exists := lim.visitors[ip]
 	if !exists {
 		v = &visitor{count: 0, lastSeen: now}

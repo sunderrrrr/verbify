@@ -13,12 +13,13 @@ import (
 )
 
 type AuthService struct {
-	repo repository.Auth
-	cfg  *config.Config
+	repo      repository.Auth
+	cfg       *config.Config
+	antifraud *AntifraudService
 }
 
-func NewAuthService(cfg *config.Config, repo repository.Auth) *AuthService {
-	return &AuthService{repo: repo, cfg: cfg}
+func NewAuthService(cfg *config.Config, repo repository.Auth, antifraud *AntifraudService) *AuthService {
+	return &AuthService{repo: repo, cfg: cfg, antifraud: antifraud}
 }
 
 type tokenClaims struct {
@@ -72,6 +73,13 @@ func (s *AuthService) ParseToken(accessToken string) (domain.User, error) {
 
 func (s *AuthService) CreateUser(user domain.User) (int, error) {
 	user.Password = generatePasswordHash(user.Password, s.cfg.Security.Salt)
+	excist, err := s.antifraud.CheckFraud(user.IP, user.Fingerprint)
+	if err != nil {
+		return 0, err
+	}
+	if excist {
+		return 0, errors.New("antifraud denied reg")
+	}
 	return s.repo.SignUp(user)
 }
 

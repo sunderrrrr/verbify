@@ -28,7 +28,7 @@ func (h *Handler) InitRoutes(cfg *config.Config) *gin.Engine {
 	router.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{cfg.Security.FrontendUrl},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization", "Baggage", "Sentry-Trace"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length", "Authorization"},
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
@@ -37,7 +37,8 @@ func (h *Handler) InitRoutes(cfg *config.Config) *gin.Engine {
 	{
 		v1 := api.Group("/v1")
 		{
-			auth := v1.Group("auth") // Мутки с авторизацией
+			auth := v1.Group("auth")
+
 			{
 
 				auth.POST("/sign-up", h.signUp)

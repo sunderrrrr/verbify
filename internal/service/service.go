@@ -15,6 +15,7 @@ type Service struct {
 	Essay
 	User
 	Subscription
+	Antifraud
 }
 
 type Theory interface {
@@ -60,16 +61,23 @@ type Subscription interface {
 	ActivateSubscription(paymentId string) error
 }
 
+type Antifraud interface {
+	CheckFraud(ip, fingerprint string) (bool, error)
+}
+
 func NewService(cfg *config.Config, repo *repository.Repository) *Service {
 	LLMs := NewLLMService(cfg)
+	AF := NewAntifraudService(repo)
+	TH := NewTheoryService(*repo)
 	return &Service{
-		Auth:         NewAuthService(cfg, repo),
-		Theory:       NewTheoryService(*repo),
+		Auth:         NewAuthService(cfg, repo, AF),
+		Theory:       TH,
 		LLM:          LLMs,
-		Chat:         NewChatService(*repo, LLMs),
+		Chat:         NewChatService(*repo, LLMs, TH),
 		Facts:        NewFactService(),
 		Essay:        NewEssayService(),
 		User:         NewUserService(cfg, repo),
 		Subscription: NewSubscriptionService(cfg, repo),
+		Antifraud:    AF,
 	}
 }
