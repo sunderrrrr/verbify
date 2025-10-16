@@ -311,16 +311,22 @@ export default function ChatPage() {
 
             const data = await response.json();
 
-            if (data?.result) {
-                const botReply = data.result.find((r: ChatResponseItem) => r.role === 'assistant');
-                if (botReply) {
+            if (data?.result && data.result.length > 0) {
+                const lastReply = data.result[data.result.length - 1];
+                if (lastReply.role === 'assistant') {
                     const safeContent =
-                        typeof botReply.content === 'string'
-                            ? botReply.content
-                            : JSON.stringify(botReply.content, null, 2);
+                        typeof lastReply.content === 'string'
+                            ? lastReply.content
+                            : JSON.stringify(lastReply.content, null, 2);
+
                     setMessages(prev => [
                         ...prev,
-                        { id: `bot-${botReply.id}`, content: safeContent, isBot: true, createdAt: botReply.created_at }
+                        {
+                            id: `bot-${lastReply.id}`,
+                            content: safeContent,
+                            isBot: true,
+                            createdAt: lastReply.created_at
+                        }
                     ]);
                 }
             }
