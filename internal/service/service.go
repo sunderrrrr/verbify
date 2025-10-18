@@ -76,7 +76,7 @@ func NewService(cfg *config.Config, repo *repository.Repository) *Service {
 		LLM:          LLMs,
 		Chat:         NewChatService(*repo, LLMs, TH),
 		Facts:        NewFactService(),
-		Essay:        NewEssayService(),
+		Essay:        NewEssayService(LLMs),
 		User:         NewUserService(cfg, repo),
 		Subscription: NewSubscriptionService(cfg, repo),
 		Antifraud:    AF,

@@ -13,8 +13,8 @@ type EssayService struct {
 	LLM *LLMService
 }
 
-func NewEssayService() *EssayService {
-	return &EssayService{}
+func NewEssayService(llm *LLMService) *EssayService {
+	return &EssayService{llm}
 }
 
 func (s *EssayService) GetEssayThemes() ([]domain.EssayTheme, error) {
