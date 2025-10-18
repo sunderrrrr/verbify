@@ -6,6 +6,7 @@ import (
 	"WhyAi/internal/repository"
 )
 
+// сборный файл всех интерфейсов сервисов аналогично репозиторию
 type Service struct {
 	Theory
 	Auth

@@ -6,6 +6,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// вынес логгер в отдельный пакет для единых настроек
 var Log = logrus.New()
 
 func init() {

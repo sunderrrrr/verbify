@@ -21,6 +21,7 @@ func NewHandler(service *service.Service, redis *redis.Client, cfg *config.Confi
 	return &Handler{service: service, middleware: middleware.NewMiddleware(service, redis), cfg: cfg}
 }
 
+// Настройка роутинга
 func (h *Handler) InitRoutes(cfg *config.Config) *gin.Engine {
 	gin.SetMode(gin.DebugMode)
 	router := gin.New()

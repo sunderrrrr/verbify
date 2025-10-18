@@ -8,6 +8,7 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
+// обертка над редисом
 type Client struct {
 	cli *redis.Client
 }

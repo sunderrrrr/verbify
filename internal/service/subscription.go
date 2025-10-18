@@ -4,7 +4,6 @@ import (
 	"WhyAi/internal/config"
 	"WhyAi/internal/domain"
 	"WhyAi/internal/repository"
-	"WhyAi/pkg/logger"
 	"bytes"
 	"encoding/json"
 	"errors"
@@ -97,7 +96,7 @@ func (s *SubscriptionService) CreateSubscriptionURL(userId int, subscriptionId i
 	if err := s.repo.Subscription.CreateTransaction(&payment); err != nil {
 		return "", err
 	}
-	logger.Log.Infoln(response)
+	//logger.Log.Infoln(response)
 	return response.Url, nil
 }
 

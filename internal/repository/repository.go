@@ -6,6 +6,8 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
+//сборный файл всех интерфейсов репозиториев в пакете
+
 type Repository struct {
 	Chat
 	Auth

@@ -3,7 +3,6 @@ package service
 import (
 	"WhyAi/internal/config"
 	"WhyAi/internal/domain"
-	"WhyAi/pkg/logger"
 	"WhyAi/pkg/sender"
 	"bytes"
 	"encoding/json"
@@ -46,12 +45,12 @@ func (s *LLMService) AskLLM(messages []domain.Message, isEssay bool) (*domain.Me
 	defer resp.Body.Close()
 
 	var res domain.LLMResponse
-	logger.Log.Infof("response raw %v", resp)
-	logger.Log.Infof("response code %v", resp.StatusCode)
+	//logger.Log.Infof("response raw %v", resp)
+	//logger.Log.Infof("response code %v", resp.StatusCode)
 	if err = json.NewDecoder(resp.Body).Decode(&res); err != nil {
 		return nil, errors.New("fail to decode response: " + err.Error())
 	}
-	logger.Log.Infof("response: %v", res)
+	//logger.Log.Infof("response: %v", res)
 	if len(res.Choices) == 0 {
 		return nil, errors.New("no choices in response")
 	}

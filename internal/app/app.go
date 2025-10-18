@@ -26,7 +26,7 @@ func Run() {
 	logger.Log.Infof("PAYMENT SERVICE URL %s", cfg.Payment.BaseURL)
 	logger.Log.Infof("DB_HOST: %s | DB_PORT: %s", cfg.Database.Host, cfg.Database.Port)
 	redis := redis2.NewClient(cfg)
-	if err := redis.Ping(ctx); err != nil {
+	if err = redis.Ping(ctx); err != nil {
 		logger.Log.Fatalf("Error connecting to redis: %s", err)
 	}
 	//Подключение к бд

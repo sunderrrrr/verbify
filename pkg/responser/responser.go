@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// единый вывод ошибок для api
 type errorResponse struct {
 	Msg string `json:"result:"`
 }

@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"WhyAi/pkg/logger"
 	"WhyAi/pkg/responser"
 	"net/http"
 	"sync"
@@ -46,17 +45,18 @@ func init() {
 	}()
 }
 
+// Рейт лимиттер (жестко навайбкожен, тк я плохо понимаю пока в конкурентности и горутинах)
 func (m *MiddlewareService) RateLimitter(c *gin.Context) {
 	ip := c.ClientIP()
 	now := time.Now()
 
 	lim.mu.Lock()
 	defer lim.mu.Unlock()
-	for name, values := range c.Request.Header {
+	/* for name, values := range c.Request.Header {
 		for _, value := range values {
 			logger.Log.Infof("  %s: %s\n", name, value)
 		}
-	}
+	} */
 	v, exists := lim.visitors[ip]
 	if !exists {
 		v = &visitor{count: 0, lastSeen: now}

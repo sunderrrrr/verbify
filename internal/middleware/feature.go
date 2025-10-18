@@ -10,6 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// Реализация ежедневного лимита на чат и другие фичи
 func (m *MiddlewareService) FeatureLimit(feature string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		id, err := m.GetUserId(c)
@@ -46,11 +47,11 @@ func (m *MiddlewareService) FeatureLimit(feature string) gin.HandlerFunc {
 		}
 		if int(count) > limit {
 			responser.NewErrorResponse(c, http.StatusTooManyRequests, "you reached the limit")
-			logger.Log.Infof("feature %s limit %d/%d", feature, count, limit)
+			//logger.Log.Infof("feature %s limit %d/%d", feature, count, limit)
 			c.Abort()
 			return
 		}
-		logger.Log.Infof("feature %s limit %d/%d", feature, count, limit)
+		//logger.Log.Infof("feature %s limit %d/%d", feature, count, limit)
 		c.Next()
 	}
 }

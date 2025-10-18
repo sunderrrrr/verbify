@@ -13,6 +13,7 @@ const (
 	roleCtx             = "roleId"
 )
 
+// Мидлвар сервис
 type MiddlewareService struct {
 	service *service.Service
 	redis   *redis.Client
