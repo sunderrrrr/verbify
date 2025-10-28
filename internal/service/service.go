@@ -4,6 +4,7 @@ import (
 	"WhyAi/internal/config"
 	"WhyAi/internal/domain"
 	"WhyAi/internal/repository"
+	"io"
 )
 
 // сборный файл всех интерфейсов сервисов аналогично репозиторию
@@ -17,6 +18,7 @@ type Service struct {
 	User
 	Subscription
 	Antifraud
+	Scan
 }
 
 type Theory interface {
@@ -66,6 +68,10 @@ type Antifraud interface {
 	CheckFraud(ip, fingerprint string) (bool, error)
 }
 
+type Scan interface {
+	ScanPhoto(file []io.Reader, filename []string) (string, error)
+}
+
 func NewService(cfg *config.Config, repo *repository.Repository) *Service {
 	LLMs := NewLLMService(cfg)
 	AF := NewAntifraudService(repo)
@@ -80,5 +86,6 @@ func NewService(cfg *config.Config, repo *repository.Repository) *Service {
 		User:         NewUserService(cfg, repo),
 		Subscription: NewSubscriptionService(cfg, repo),
 		Antifraud:    AF,
+		Scan:         NewScanService(cfg),
 	}
 }

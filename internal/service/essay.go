@@ -53,9 +53,18 @@ func (s *EssayService) ProcessEssayRequest(request domain.EssayRequest) (*domain
 	}
 
 	resp := strings.ReplaceAll(llmAsk.Content, "`", "")
-	var eResponse domain.EssayResponse
+	var eResponse domain.EssayTempResponse
 	if err = json.Unmarshal([]byte(resp), &eResponse); err != nil {
 		return nil, err
 	}
-	return &eResponse, nil
+	finalScore := 0
+	for i := 0; i < len(eResponse.Score); i++ {
+		finalScore += eResponse.Score[i]
+	}
+	finalResult := domain.EssayResponse{
+		Score:          finalScore,
+		Feedback:       eResponse.Feedback,
+		Recommendation: eResponse.Recommendation,
+	}
+	return &finalResult, nil
 }

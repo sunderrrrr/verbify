@@ -72,6 +72,7 @@ func (h *Handler) InitRoutes(cfg *config.Config) *gin.Engine {
 			{
 				essay.GET("/themes", h.GetEssayTasks)
 				essay.POST("/", h.middleware.FeatureLimit("essay"), h.SendEssay)
+				essay.POST("/scan", h.ScanPhoto)
 			}
 
 			fact := v1.Group("/fact")

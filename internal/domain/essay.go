@@ -11,8 +11,17 @@ type EssayRequest struct {
 	Text  string `json:"text"`
 	Essay string `json:"essay"`
 }
+type EssayTempResponse struct {
+	Score          [10]int `json:"score"`
+	Feedback       string  `json:"feedback"`
+	Recommendation string  `json:"recommendation"`
+}
 type EssayResponse struct {
 	Score          int    `json:"score"`
 	Feedback       string `json:"feedback"`
 	Recommendation string `json:"recommendation"`
+}
+
+type EssayScanResponse struct {
+	Response string `json:"response"`
 }
