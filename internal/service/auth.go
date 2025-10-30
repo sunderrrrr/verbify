@@ -78,7 +78,7 @@ func (s *AuthService) CreateUser(user domain.User) (int, error) {
 		return 0, err
 	}
 	if excist {
-		return 0, errors.New("antifraud denied reg")
+		return 0, errors.New(domain.AntiFraudDeniedRegError)
 	}
 	return s.repo.SignUp(user)
 }

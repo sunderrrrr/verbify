@@ -6,7 +6,7 @@ import (
 
 // единый вывод ошибок для api
 type errorResponse struct {
-	Msg string `json:"result:"`
+	Msg string `json:"result"`
 }
 
 func NewErrorResponse(c *gin.Context, statusCode int, msg string) {

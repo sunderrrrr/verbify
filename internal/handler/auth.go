@@ -21,10 +21,16 @@ func (h *Handler) signUp(c *gin.Context) {
 
 	signUp, err := h.service.Auth.CreateUser(input)
 	if err != nil {
+		logger.Log.Infoln(err)
+		if err.Error() == domain.AntiFraudDeniedRegError {
+			responser.NewErrorResponse(c, http.StatusUnauthorized, domain.AntiFraudDeniedRegError)
+			return
+		}
 		responser.NewErrorResponse(c, http.StatusUnauthorized, domain.SignUpError)
 		logger.Log.Error("Error while creating user: %v", err)
 		return
 	}
+
 	c.JSON(http.StatusOK, gin.H{"id": signUp})
 
 }

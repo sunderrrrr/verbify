@@ -18,6 +18,7 @@ const (
 	ParseTokenError           = "failed to parse token"
 	PasswordResetRequestError = "failed to reset password"
 	PasswordResetError        = "failed to reset password"
+	AntiFraudDeniedRegError   = "antifraud denied registration"
 )
 
 // Ошибки чата
@@ -34,6 +35,7 @@ const (
 	GetEssayThemesFailed = "failed to get essay themes"
 	EssayGraduateError   = "failed to graduate essay"
 	FactsGetError        = "failed to get facts"
+	EssayScanError       = "failed to scan essay"
 )
 
 const (

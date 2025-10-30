@@ -21,6 +21,7 @@ llm:
   api_key: ""
   or_api: ""
   base_url: "https://api.proxyapi.ru/openai/v1/chat/completions"
+
 payment:
   base_url: "http://localhost:8080"
 security:

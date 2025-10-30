@@ -49,15 +49,15 @@ func (h *Handler) ScanPhoto(c *gin.Context) {
 		filenames = append(filenames, fileHeader.Filename)
 	}
 
-	logger.Log.Infof("processing %d files: %v", len(files), filenames)
+	//logger.Log.Infof("processing %d files: %v", len(files), filenames)
 
 	scan, err := h.service.Scan.ScanPhoto(fileReaders, filenames)
 	if err != nil {
-		responser.NewErrorResponse(c, http.StatusInternalServerError, err.Error())
+		responser.NewErrorResponse(c, http.StatusInternalServerError, domain.EssayScanError)
 		logger.Log.Errorf("failed to scan photo: %v", err)
 		return
 	}
-	logger.Log.Infof("scan result: %v", scan)
+	//logger.Log.Infof("scan result: %v", scan)
 	c.JSON(http.StatusOK, gin.H{
 		"result": scan,
 	})
