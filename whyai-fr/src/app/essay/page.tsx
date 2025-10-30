@@ -13,10 +13,16 @@ import {
     Chip,
     CircularProgress,
     Container,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
     Fade,
     FormControl,
     FormControlLabel,
     Grow,
+    IconButton,
     InputLabel,
     keyframes,
     Link,
@@ -30,7 +36,7 @@ import {
     Typography,
     useMediaQuery
 } from '@mui/material';
-import {CloudUpload, Info, Star} from '@mui/icons-material';
+import {Close as CloseIcon, CloudUpload, Info, Star} from '@mui/icons-material';
 import theme from "@/app/_config/theme";
 
 const API_BASE_URL = `${process.env.NEXT_PUBLIC_API_BASE_URL}/essay`;
@@ -126,7 +132,7 @@ const MarkdownComponents = {
     p: ({ children }: any) => {
         const text = typeof children === 'string' ? children : '';
         if (text.includes('**К') && (text.includes(':**') || text.includes(': **'))) {
-            const criteria = text.split(/\n+/).filter(line => line.trim().startsWith('**К'));
+            const criteria = text.split(/\n+/).filter(line => line.trim().startsWith('**K'));
 
             return (
                 <Box sx={{ animation: `${fadeIn} 0.3s` }}>
@@ -182,6 +188,9 @@ export default function EssayPage() {
     const [scannedSourceText, setScannedSourceText] = useState('');
     const [scannedEssayText, setScannedEssayText] = useState('');
     const [scanCompleted, setScanCompleted] = useState(false);
+
+    // Добавлено состояние для диалога лимитов
+    const [rateLimitDialogOpen, setRateLimitDialogOpen] = useState(false);
 
     const selectedTheme = themes.find(theme => theme.id.toString() === selectedThemeId);
     const canScanSource = sourceImage && !useReadyTheme && !manualInput;
@@ -318,6 +327,12 @@ export default function EssayPage() {
                 body: JSON.stringify(payload)
             });
 
+            // Добавлена проверка на лимит запросов
+            if (response.status === 429) {
+                setRateLimitDialogOpen(true);
+                return;
+            }
+
             if (!response.ok) throw new Error('Ошибка оценки сочинения');
 
             const {result} = await response.json();
@@ -359,7 +374,7 @@ export default function EssayPage() {
                         fontWeight: 700,
                         animation: `${fadeIn} 1s ease-out`
                     }}>
-                        ИИ-Проверка сочинений
+                        AI-Проверка по ЕГЭ
                     </Typography>
                 </Box>
             </FadeContainer>
@@ -730,6 +745,40 @@ export default function EssayPage() {
                     </Box>
                 </MarkdownContainer>
             )}
+
+            {/* Диалог лимитов (добавлен) */}
+            <Dialog open={rateLimitDialogOpen} onClose={() => setRateLimitDialogOpen(false)} maxWidth="sm" fullWidth>
+                <DialogTitle>
+                    <Box display="flex" justifyContent="space-between" alignItems="center">
+                        <span>Ой, похоже вы исчерпали дневной лимит проверок сочинений🥺</span>
+                        <IconButton onClick={() => setRateLimitDialogOpen(false)}>
+                            <CloseIcon />
+                        </IconButton>
+                    </Box>
+                </DialogTitle>
+                <DialogContent>
+                    <Box display="flex" alignItems="center">
+                        <DialogContentText>
+                            Мы ограничиваем количество проверок для экономии ресурсов, но вы можете оформить подписку и поддержать проект!
+                        </DialogContentText>
+                    </Box>
+                </DialogContent>
+                <DialogActions sx={{ justifyContent: 'center', pb: 3 }}>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        component={Link}
+                        href="https://verbify.icu/profile"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={() => setRateLimitDialogOpen(false)}
+                        sx={{ px: 4 }}
+                    >
+                        Подробнее👀
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
             <Snackbar
                 open={snackbarOpen}
                 autoHideDuration={6000}

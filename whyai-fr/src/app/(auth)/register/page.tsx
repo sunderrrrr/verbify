@@ -36,12 +36,14 @@ export default function RegisterPage() {
             await apiClient.post(config.api.endpoints.register, data);
             window.location.href = '/login';
         } catch (error: any) {
-            if (error?.response?.data?.result === "user exists") {
-                setErrorMessage('Ошибка регистрации: Возможно пользователь с таким email уже существует 🤔\n Поменяйте данные или подождите');
-            } else {
-                setErrorMessage('Ошибка регистрации: Возможно пользователь с таким email уже существует 🤔\n Поменяйте данные или подождите');
-            }
+        if (error?.response?.data?.result === "antifraud denied registration") {
+            setErrorMessage('Регистрация отклонена системой безопасности');
+        } else if (error?.response?.data?.result === "user exists") {
+            setErrorMessage('Ошибка регистрации: Возможно пользователь с таким email уже существует 🤔\n Поменяйте данные или подождите');
+        } else {
+            setErrorMessage('Ошибка регистрации:' + error?.response?.data?.result +  '\n Мы уже о ней знаем и работаем над исправлением \n Попробуйте позже');
         }
+    }
     };
 
     return (
@@ -188,7 +190,7 @@ export default function RegisterPage() {
                             'Зарегистрироваться'
                         )}
                     </MotionButton>
-                    
+
                     <Typography variant="body2" textAlign="center" sx={{ mt: 2 }}>
                         Уже есть аккаунт?{' '}
                         <Link

@@ -62,7 +62,7 @@ export default function LandingPage() {
                 </Button>
             </MotionBox>
 
-            {/* Features */}
+
             <MotionBox initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp} sx={{ display: 'grid', gap: 3, gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr 1fr' }, mb: 8 }}>
                 {features.map((f, i) => (
                     <Paper key={i} elevation={2} sx={{ p: 3, borderRadius: 3, textAlign: 'center', bgcolor: theme.palette.background.paper, transition: 'all 0.3s ease', '&:hover': { transform: 'translateY(-6px) scale(1.03)', boxShadow: 6 } }}>
@@ -73,9 +73,9 @@ export default function LandingPage() {
                 ))}
             </MotionBox>
 
-            {/* Advantages */}
+
             <MotionBox initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp} sx={{ textAlign: 'center', mb: 8 }}>
-                <Typography variant="h2" sx={{ color: theme.palette.text.primary }}>Почему Verbify?</Typography>
+                <Typography variant="h6" sx={{ color: theme.palette.text.primary }}>Почему Verbify?</Typography>
                 <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 3, mt: 3, justifyContent: 'center' }}>
                     {advantages.map((a, i) => (
                         <Paper key={i} elevation={1} sx={{ flex: 1, p: 3, borderRadius: 3, display: 'flex', alignItems: 'center', gap: 2, bgcolor: theme.palette.background.paper, transition: 'all 0.3s ease', '&:hover': { transform: 'translateY(-4px)', boxShadow: 4 } }}>
@@ -113,7 +113,7 @@ export default function LandingPage() {
                 </Paper>
             </MotionBox>
 
-            {/* CTA */}
+
             <MotionBox initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp} sx={{ textAlign: 'center' }}>
                 <Typography variant="h4" sx={{ mb: 3, fontWeight: 700, color: theme.palette.text.primary }}>Готовы повысить эффективность подготовки?</Typography>
                 <Button variant="contained" size="large" component={Link} href="/login" sx={{

@@ -21,20 +21,14 @@ apiClient.interceptors.request.use(
 );
 
 // Интерцептор для ответов
+// Интерцептор для ответов
 apiClient.interceptors.response.use(
     (response) => {
         return response;
     },
     (error) => {
-        const errorMessage = error.response?.data?.message || 'Network Error';
-        const errorCode = error.response?.status || 500;
-
-
-        return Promise.reject({
-            message: errorMessage,
-            code: errorCode,
-        });
+        // Просто возвращаем оригинальную ошибку без изменений
+        return Promise.reject(error);
     }
 );
-
 export default apiClient;

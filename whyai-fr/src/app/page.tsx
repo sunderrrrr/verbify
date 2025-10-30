@@ -152,8 +152,8 @@ export default function HomePage() {
                 </Typography>
                 <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2, justifyContent: 'center', alignItems: 'stretch' }}>
                     {[
-                        { id: 'ai-test', title: '✅ Тест с ИИ-Анализом' },
-                        { id: 'ai-essay', title: '🧠 ИИ-Проверка сочинения' }
+                        { id: 'ai-test', title: '✅ Тест с AI-Анализом' },
+                        { id: 'ai-essay', title: '🧠 AI-Проверка сочинения' }
                     ].map(practice => {
                         const isLocked = lockedPractice.includes(practice.id);
                         return (

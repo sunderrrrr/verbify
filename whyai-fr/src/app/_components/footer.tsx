@@ -1,6 +1,6 @@
 'use client';
-import { Box, Container, Typography, IconButton, Divider } from '@mui/material';
-import { GitHub, Twitter, Telegram, Instagram } from '@mui/icons-material';
+import {Box, Container, Divider, IconButton, Typography} from '@mui/material';
+import {Telegram} from '@mui/icons-material';
 import theme from '../_config/theme';
 
 export function Footer() {
@@ -26,20 +26,7 @@ export function Footer() {
                     }}
                 >
 
-                    <IconButton
-                        aria-label="GitHub"
-                        color="inherit"
-                        href="https://github.com/sunderrrrr"
-                        sx={{
-                            color: 'onSurfaceVariant.main',
-                            '&:hover': {
-                                color: theme.palette.primary.main,
-                                bgcolor: 'transparent'
-                            }
-                        }}
-                    >
-                        <GitHub fontSize="small" />
-                    </IconButton>
+
                     <IconButton
                         aria-label="Telegram"
                         color="inherit"
@@ -75,8 +62,23 @@ export function Footer() {
                     >
                         © {new Date().getFullYear()} {process.env.NEXT_PUBLIC_APP_NAME}. Все права защищены. В разработке.
                     </Typography>
-
+                    <Typography
+                        variant="caption"
+                        component="a"
+                        href="/about"
+                        sx={{
+                            color: 'text.secondary',
+                            textDecoration: 'none',
+                            '&:hover': {
+                                color: theme.palette.primary.main,
+                                textDecoration: 'underline'
+                            }
+                        }}
+                    >
+                        О проекте
+                    </Typography>
                     <Box sx={{ display: 'flex', gap: 0 }}>
+
                         <Typography
                             variant="caption"
                             component="a"

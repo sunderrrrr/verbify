@@ -243,6 +243,9 @@ export default function ProfilePage() {
                     <Typography variant="h6" fontWeight={600} mb={2}>
                         Статистика аккаунта
                     </Typography>
+                    <Typography variant="body2" color="text.secondary" mb={3}>
+                        В будущем здесь будут показана ваша статистика подготовки
+                    </Typography>
                     <Box position="relative">
                         <Box
                             display="grid"
@@ -280,6 +283,9 @@ export default function ProfilePage() {
                 <FadeContainer>
                     <Typography variant="h6" fontWeight={600} mb={2}>
                         Тарифные планы
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" mb={3}>
+                       Подписка на сервис - это вынужденная мера, чтобы обеспечивать его работоспособность
                     </Typography>
                     {loadingPlans ? (
                         <Box display="flex" justifyContent="center" mt={4}><CircularProgress /></Box>
