@@ -16,9 +16,10 @@ func (h *Handler) signUp(c *gin.Context) {
 		logger.Log.Errorf("Error while binding input: %v", err)
 		return
 	}
-	input.IP = c.ClientIP()
+	input.IP = c.Request.RemoteAddr
 	input.Fingerprint = c.PostForm("fingerprint")
-
+	logger.Log.Infof("signup input: %v\n", input)
+	logger.Log.Infof("x forwared from %v", c.GetHeader("X-Forwarded-For"))
 	signUp, err := h.service.Auth.CreateUser(input)
 	if err != nil {
 		logger.Log.Infoln(err)

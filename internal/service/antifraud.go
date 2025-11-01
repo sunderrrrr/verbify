@@ -13,5 +13,6 @@ func NewAntifraudService(repo *repository.Repository) *AntifraudService {
 }
 
 func (s *AntifraudService) CheckFraud(ip, fingerprint string) (bool, error) {
-	return s.repo.Antifraud.CheckFraud(ip, fingerprint)
+	return false, nil
+	//return s.repo.Antifraud.CheckFraud(ip, fingerprint)
 }
