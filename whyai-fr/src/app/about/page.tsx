@@ -8,6 +8,7 @@ import InsightsIcon from '@mui/icons-material/Insights';
 import SchoolIcon from '@mui/icons-material/School';
 import ScheduleIcon from '@mui/icons-material/Schedule';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
+import GroupsIcon from '@mui/icons-material/Groups';
 import {ArrowForward} from '@mui/icons-material';
 import Link from 'next/link';
 import {motion} from 'framer-motion';
@@ -33,6 +34,12 @@ export default function LandingPage() {
         { icon: <ScheduleIcon color="primary" />, text: "Доступно в любое время и в любом месте" },
         { icon: <AutoAwesomeIcon color="primary" />, text: "Обученный ИИ с адаптацией под каждое задание" },
         { icon: <SchoolIcon color="primary" />, text: "Задания в формате ЕГЭ с упором на практику" },
+    ];
+
+    const teacherBenefits = [
+        { icon: <AssignmentTurnedInIcon color="primary" />, text: "Автоматизация проверки рутинных заданий" },
+        { icon: <GroupsIcon color="primary" />, text: "Больше времени для индивидуальной работы с учениками" },
+        { icon: <InsightsIcon color="primary" />, text: "Ведется разработка модуля анализа успеваемости ученика" },
     ];
 
     const steps = [
@@ -98,6 +105,25 @@ export default function LandingPage() {
                 </Paper>
             </MotionBox>
 
+            {/* Новый блок для учителей */}
+            <MotionBox initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp} sx={{ textAlign: 'center', mb: 8 }}>
+                <Typography variant="h5" fontWeight={700} sx={{ mb: 3, color: theme.palette.text.primary }}>
+                    Verbify — помощник и для учителей
+                </Typography>
+                <Typography variant="h6" sx={{ mb: 4, color: theme.palette.text.secondary }}>
+                    Снижаем нагрузку и повышаем эффективность преподавания
+                </Typography>
+                <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 3, justifyContent: 'center' }}>
+                    {teacherBenefits.map((benefit, i) => (
+                        <Paper key={i} elevation={2} sx={{ flex: 1, p: 3, borderRadius: 3, display: 'flex', alignItems: 'center', gap: 2, bgcolor: theme.palette.background.paper, transition: 'all 0.3s ease', '&:hover': { transform: 'translateY(-4px)', boxShadow: 4 } }}>
+                            {benefit.icon}
+                            <Typography variant="body1" fontWeight={600} sx={{ color: theme.palette.text.primary }}>
+                                {benefit.text}
+                            </Typography>
+                        </Paper>
+                    ))}
+                </Box>
+            </MotionBox>
 
             <MotionBox initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp} sx={{ textAlign: 'center', mb: 8 }}>
                 <Paper elevation={2} sx={{ p: 3, borderRadius: 3, textAlign: 'center', bgcolor: theme.palette.background.paper, transition: 'all 0.25s ease', '&:hover': { transform: 'translateY(-4px)', boxShadow: 4 } }}>

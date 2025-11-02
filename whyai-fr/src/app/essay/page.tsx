@@ -2,7 +2,6 @@
 import {useEffect, useRef, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
 import {
     Alert,
     Box,
@@ -128,39 +127,87 @@ const FileDisplay = styled(Box)(({theme}) => ({
     maxWidth: '400px'
 }));
 
+// Новый компонент для рендеринга критериев
+const CriteriaRenderer = ({ feedback }: { feedback: string }) => {
+    const criteria = feedback.split('\n').filter(line =>
+        line.trim().startsWith('**K') && (line.includes(':**') || line.includes(': **'))
+    );
+
+    if (criteria.length === 0) {
+        return (
+            <Typography variant="body1" paragraph sx={{ animation: `${fadeIn} 0.3s` }}>
+                {feedback}
+            </Typography>
+        );
+    }
+
+    return (
+        <Box sx={{ animation: `${fadeIn} 0.3s` }}>
+            {criteria.map((criterion, index) => {
+                // Разбираем критерий на части для форматирования
+                const parts = criterion.split(/(\*\*.*?\*\*)/g);
+
+                return (
+                    <Typography
+                        key={index}
+                        variant="body1"
+                        sx={{
+                            mb: 2,
+                            padding: '12px 0',
+                            borderBottom: index < criteria.length - 1 ? '1px solid rgba(0,0,0,0.1)' : 'none',
+                            lineHeight: 1.6
+                        }}
+                    >
+                        {parts.map((part, partIndex) =>
+                            part.startsWith('**') && part.endsWith('**') ? (
+                                <strong key={partIndex} style={{ color: 'rgb(251, 196, 151)' }}>
+                                    {part.slice(2, -2)}
+                                </strong>
+                            ) : (
+                                part
+                            )
+                        )}
+                    </Typography>
+                );
+            })}
+        </Box>
+    );
+};
+
+// Упрощенные Markdown компоненты
 const MarkdownComponents = {
     p: ({ children }: any) => {
-        const text = typeof children === 'string' ? children : '';
-        if (text.includes('**К') && (text.includes(':**') || text.includes(': **'))) {
-            const criteria = text.split(/\n+/).filter(line => line.trim().startsWith('**K'));
-
-            return (
-                <Box sx={{ animation: `${fadeIn} 0.3s` }}>
-                    {criteria.map((criterion, index) => (
-                        <Typography
-                            key={index}
-                            variant="body1"
-                            paragraph
-                            sx={{
-                                mb: 2,
-                                padding: '8px 0',
-                                borderBottom: index < criteria.length - 1 ? '1px solid rgba(0,0,0,0.1)' : 'none'
-                            }}
-                        >
-                            {criterion.trim()}
-                        </Typography>
-                    ))}
-                </Box>
-            );
-        }
-
-        return <Typography variant="body1" paragraph sx={{ animation: `${fadeIn} 0.3s` }}>{children}</Typography>;
+        return (
+            <Typography variant="body1" paragraph sx={{ animation: `${fadeIn} 0.3s` }}>
+                {children}
+            </Typography>
+        );
     },
-    a: ({ children, href }: any) => <Link href={href} target="_blank" rel="noopener" color="primary" sx={{ animation: `${fadeIn} 0.3s` }}>{children}</Link>,
-    ul: ({ children }: any) => <ul style={{ paddingLeft: '24px', margin: '12px 0', animation: `${fadeIn} 0.3s` }}>{children}</ul>,
-    ol: ({ children }: any) => <ol style={{ paddingLeft: '24px', margin: '12px 0', animation: `${fadeIn} 0.3s` }}>{children}</ol>,
-    li: ({ children }: any) => <li style={{ marginBottom: '8px', lineHeight: 1.6, animation: `${fadeIn} 0.3s` }}>{children}</li>,
-    strong: ({ children }: any) => <strong style={{ color: theme.palette.primary.main }}>{children}</strong>
+    a: ({ children, href }: any) => (
+        <Link href={href} target="_blank" rel="noopener" color="primary" sx={{ animation: `${fadeIn} 0.3s` }}>
+            {children}
+        </Link>
+    ),
+    ul: ({ children }: any) => (
+        <ul style={{ paddingLeft: '24px', margin: '12px 0', animation: `${fadeIn} 0.3s` }}>
+            {children}
+        </ul>
+    ),
+    ol: ({ children }: any) => (
+        <ol style={{ paddingLeft: '24px', margin: '12px 0', animation: `${fadeIn} 0.3s` }}>
+            {children}
+        </ol>
+    ),
+    li: ({ children }: any) => (
+        <li style={{ marginBottom: '8px', lineHeight: 1.6, animation: `${fadeIn} 0.3s` }}>
+            {children}
+        </li>
+    ),
+    strong: ({ children }: any) => (
+        <strong style={{ color: theme.palette.primary.main }}>
+            {children}
+        </strong>
+    )
 };
 
 export default function EssayPage() {
@@ -600,7 +647,7 @@ export default function EssayPage() {
                                                 <Chip
                                                     label={essayImage.name}
                                                     onDelete={() => setEssayImage(null)}
-                                                    color="secondary"
+                                                    color="primary"
                                                     variant="outlined"
                                                     sx={{ maxWidth: '100%' }}
                                                 />
@@ -722,9 +769,8 @@ export default function EssayPage() {
                         />
                     </Box>
 
-                    <ReactMarkdown remarkPlugins={[remarkGfm]} components={MarkdownComponents}>
-                        {evaluation.feedback}
-                    </ReactMarkdown>
+                    {/* Используем новый компонент для критериев */}
+                    <CriteriaRenderer feedback={evaluation.feedback} />
 
                     <Box sx={{
                         mt: 4,

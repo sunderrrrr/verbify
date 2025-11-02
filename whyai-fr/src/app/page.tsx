@@ -67,8 +67,8 @@ export default function HomePage() {
     }, [mounted, token, router]);
 
     useEffect(() => {
-        const array = Array.from({ length: 18 }, (_, i) => i + 9);
-        setLockedTasks(array);
+
+        setLockedTasks([0]);
     }, []);
 
     useEffect(() => {
