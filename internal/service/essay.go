@@ -48,6 +48,7 @@ func (s *EssayService) ProcessEssayRequest(request domain.EssayRequest) (*domain
 
 	llmRequest := []domain.Message{{Role: "user", Content: prompt}}
 	llmAsk, err := s.LLM.AskLLM(llmRequest, true)
+
 	if err != nil {
 		return nil, err
 	}
@@ -61,10 +62,19 @@ func (s *EssayService) ProcessEssayRequest(request domain.EssayRequest) (*domain
 	for i := 0; i < len(eResponse.Score); i++ {
 		finalScore += eResponse.Score[i]
 	}
+	logger.Log.Infoln(eResponse)
 	finalResult := domain.EssayResponse{
 		Score:          finalScore,
 		Feedback:       eResponse.Feedback,
 		Recommendation: eResponse.Recommendation,
 	}
 	return &finalResult, nil
+}
+
+func (s *EssayService) TempEssayRequest(request domain.EssayRequest) (*domain.EssayResponse, error) {
+	return &domain.EssayResponse{
+		Score:          22,
+		Feedback:       "**K1 (1/1):** Позиция автора чётко сформулирована — главная цель критики – взращивать талант, а не подавлять его.\n**K2 (3/3):** Приведены два примера из текста (покровительствующие критикующие критики), дана поясняющая интерпретация каждого и указана их смысловая связь.\n**K3 (2/2):** Высказано согласие с позицией автора и приведён аргумент из личного опыта (примеры с учительницей и другом-художником).\n**K4 (1/1):** Текст передан без искажения фактов оригинала.\n**K5 (2/2):** Логичное и связное изложение, явных противоречий нет.\n**K6 (1/1):** Этические нормы соблюдены, оскорблений или грубости нет.\n**K7 (3/3):** Орфографических ошибок не обнаружено.\n**K8 (3/3):** Пунктуационные нормы соблюдены, знаки препинания расставлены корректно.\n**K9 (2/3):** Есть одна грамматическая ошибка: неверный падеж в сочетании «нравственных качествах человека».\n**K10 (3/3):** Речевые нормы соблюдены, стилистических нарушений не выявлено",
+		Recommendation: "- Для K9: Исправить грамматическую ошибку — заменить «нравственных качествах человека» на «нравственных качеств человека».",
+	}, nil
 }

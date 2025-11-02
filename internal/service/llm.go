@@ -10,6 +10,7 @@ import (
 	"errors"
 	"net/http"
 	"strings"
+	"unicode"
 )
 
 type LLMService struct {
@@ -22,8 +23,12 @@ func NewLLMService(cfg *config.Config) *LLMService {
 }
 
 func (s *LLMService) AskLLM(messages []domain.Message, isEssay bool) (*domain.Message, error) {
+	model := "gpt-5-nano"
+	if isEssay {
+		model = "o4-mini"
+	}
 	body, err := json.Marshal(domain.LLMRequest{
-		Model:       "gpt-4.1-nano",
+		Model:       model,
 		Temperature: 0,
 		Messages:    messages,
 	})
@@ -36,7 +41,7 @@ func (s *LLMService) AskLLM(messages []domain.Message, isEssay bool) (*domain.Me
 		return nil, errors.New("fail to create request")
 	}
 
-	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Content-Type", "application/json; charset=utf-8")
 	req.Header.Set("Authorization", "Bearer "+s.Token)
 
 	resp, err := sender.Client.Do(req)
@@ -72,11 +77,10 @@ func extractJson(text string) (string, error) {
 }
 
 func cleanText(text string) string {
-	var result strings.Builder
-	for _, char := range text {
-		if (char >= ' ' && char <= '~') || char == '\n' || char == ' ' {
-			result.WriteRune(char)
+	return strings.Map(func(r rune) rune {
+		if unicode.IsControl(r) && r != '\n' && r != '\t' {
+			return -1
 		}
-	}
-	return result.String()
+		return r
+	}, text)
 }

@@ -4,8 +4,9 @@ import (
 	"WhyAi/internal/domain"
 	"WhyAi/pkg/logger"
 	"WhyAi/pkg/responser"
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 func (h *Handler) GetEssayTasks(c *gin.Context) {

@@ -47,6 +47,7 @@ type Essay interface {
 	GetEssayThemes() ([]domain.EssayTheme, error)
 	GenerateUserPrompt(request domain.EssayRequest) (string, error)
 	ProcessEssayRequest(request domain.EssayRequest) (*domain.EssayResponse, error)
+	TempEssayRequest(request domain.EssayRequest) (*domain.EssayResponse, error)
 }
 type User interface {
 	ResetPassword(resetModel domain.UserReset) error

@@ -33,7 +33,7 @@ var prompt = `Ты получаешь несколько изображений,
 Результат должен читаться как цельный документ.`
 
 func NewScanService(cfg *config.Config) *ScanService {
-	return &ScanService{Token: cfg.LLM.OR_API}
+	return &ScanService{Token: cfg.LLM.APIKey}
 }
 
 func (s *ScanService) ScanPhoto(files []io.Reader, filenames []string) (string, error) {
@@ -63,8 +63,8 @@ func (s *ScanService) ScanPhoto(files []io.Reader, filenames []string) (string, 
 	}
 
 	request := map[string]interface{}{
-		"model":       "qwen/qwen2.5-vl-32b-instruct:free",
-		"temperature": 0,
+		"model": "gpt-5-nano",
+		//"temperature": 0,
 		"messages": []map[string]interface{}{
 			{
 				"role":    "user",
@@ -82,7 +82,7 @@ func (s *ScanService) sendRequest(request map[string]interface{}) (string, error
 		return "", fmt.Errorf("failed to marshal request: %w", err)
 	}
 
-	req, err := http.NewRequest("POST", "https://openrouter.ai/api/v1/chat/completions", bytes.NewBuffer(jsonData))
+	req, err := http.NewRequest("POST", "https://api.proxyapi.ru/openai/v1/chat/completions", bytes.NewBuffer(jsonData))
 	if err != nil {
 		return "", fmt.Errorf("failed to create request: %w", err)
 	}
