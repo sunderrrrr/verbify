@@ -1,3 +1,4 @@
+// app/page.tsx - обновленный код
 'use client';
 import {useEffect, useState} from 'react';
 import {
@@ -8,6 +9,7 @@ import {
     CircularProgress,
     Container,
     Dialog,
+    Grid,
     IconButton,
     keyframes,
     styled,
@@ -22,6 +24,7 @@ import {useTheme} from '@mui/material/styles';
 import LockIcon from '@mui/icons-material/Lock';
 import TGBanner from "@/app/_components/telegram";
 import {useAuthStore} from "./_stores/authStore";
+import StatsWidget from "./_components/StatsWidget";
 
 interface Category {
     name: string;
@@ -54,6 +57,8 @@ export default function HomePage() {
     const [lockedPractice] = useState<string[]>(['ai-test']);
     const BaseApiUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
 
+    const [showDetailedStats, setShowDetailedStats] = useState(false);
+
     useEffect(() => {
         setMounted(true);
         initialize(); // Инициализируем состояние из cookies
@@ -67,7 +72,6 @@ export default function HomePage() {
     }, [mounted, token, router]);
 
     useEffect(() => {
-
         setLockedTasks([0]);
     }, []);
 
@@ -115,8 +119,16 @@ export default function HomePage() {
         { name: '📃 Пунктуация', description: "Знаки препинания в предложениях", range: [16, 21], color: theme.palette.primary.light },
         { name: '📖 Текст', description: "Чтение и анализ содержимого текста", range: [22, 26], color: theme.palette.primary.light },
     ];
+
+    const handleViewDetailedStats = () => {
+        // Можно сделать модальное окно или переход на отдельную страницу
+        setShowDetailedStats(true);
+        // Или router.push('/stats');
+    };
+
+    // @ts-ignore
     return (
-        <Container maxWidth="md" sx={{ py: 3, px: { xs: 1.5, sm: 1 } }}>
+        <Container maxWidth="lg" sx={{ py: 3, px: { xs: 1.5, sm: 2 } }}>
             <FadeContainer>
                 <Typography variant="h3" sx={{ mb: 2, fontWeight: 1000, textAlign: 'center', color: 'text.primary', fontSize: isMobile ? '1.7rem' : '2.5rem' }}>
                     Verbify
@@ -126,31 +138,95 @@ export default function HomePage() {
                 </Typography>
             </FadeContainer>
 
+
             <TGBanner />
 
             <FadeContainer>
-                <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 3, '& > *': { maxHeight: isMobile ? 130 : 140, width: '100%' } }}>
+                <Box sx={{
+                    display: 'grid',
+                    gridTemplateColumns: { xs: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' },
+                    gap: 2,
+                    '& > *': {
+                        maxHeight: isMobile ? 120 : 140,
+                        width: '100%'
+                    }
+                }}>
                     {categories.map(category => (
-                        <Button key={category.name} onClick={() => setOpenCategory(category)} sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', borderRadius: 3, background: category.color, p: 1.5, aspectRatio: '3/2', transition: 'all 0.2s ease', '&:hover': { transform: 'translateY(-2px)', boxShadow: 1 } }}>
-                            <Typography sx={{ fontWeight: 600, mb: 0.5, textAlign: 'center', color: 'text.primary', fontSize: isMobile ? '0.875rem' : '1.5rem' }}>
+                        <Button
+                            key={category.name}
+                            onClick={() => setOpenCategory(category)}
+                            sx={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                borderRadius: 3,
+                                background: category.color,
+                                p: 1.5,
+                                aspectRatio: '3/2',
+                                transition: 'all 0.2s ease',
+                                '&:hover': {
+                                    transform: 'translateY(-2px)',
+                                    boxShadow: 1
+                                }
+                            }}
+                        >
+                            <Typography sx={{
+                                fontWeight: 600,
+                                mb: 0.5,
+                                textAlign: 'center',
+                                color: 'text.primary',
+                                fontSize: isMobile ? '0.875rem' : '1.1rem'
+                            }}>
                                 {category.name}
                             </Typography>
-                            <Typography sx={{ fontWeight: 600, mb: 0.5, textAlign: 'center', color: 'text.primary', fontSize: isMobile ? '0.875rem' : '1rem' }}>
+                            <Typography sx={{
+                                fontWeight: 500,
+                                mb: 0.5,
+                                textAlign: 'center',
+                                color: 'text.primary',
+                                fontSize: isMobile ? '0.7rem' : '0.9rem'
+                            }}>
                                 {category.description}
                             </Typography>
                             <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '0.75rem' }}>
                                 Задания {category.range[0]}-{category.range[1]}
                             </Typography>
-                            <ArrowForward sx={{ fontSize: isMobile ? 20 : 24, mt: 0.5 }} />
+                            <ArrowForward sx={{ fontSize: isMobile ? 16 : 20, mt: 0.5 }} />
                         </Button>
                     ))}
                 </Box>
             </FadeContainer>
             <FadeContainer>
-                <Typography variant="h6" sx={{ mt: 6, mb: 3, fontWeight: 700, textAlign: 'center', color: 'text.primary', fontSize: isMobile ? '1.1rem' : '1.5rem' }}>
+                <Grid container spacing={3} sx={{ mb: 4, mt:8}}>
+                    <Grid item xs={12}>
+                        <StatsWidget
+                            compact={isMobile}
+                            showRefresh={true}
+                            themeLabels={categories.map(c => c.name)}
+                            onViewDetails={handleViewDetailedStats}
+                        />
+                    </Grid>
+                </Grid>
+            </FadeContainer>
+            <FadeContainer>
+                <Typography variant="h6" sx={{
+                    mt: 4,
+                    mb: 2,
+                    fontWeight: 700,
+                    textAlign: 'center',
+                    color: 'text.primary',
+                    fontSize: isMobile ? '1.1rem' : '1.5rem'
+                }}>
                     ИИ-Практика
                 </Typography>
-                <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2, justifyContent: 'center', alignItems: 'stretch' }}>
+                <Box sx={{
+                    display: 'flex',
+                    flexDirection: { xs: 'column', sm: 'row' },
+                    gap: 2,
+                    justifyContent: 'center',
+                    alignItems: 'stretch'
+                }}>
                     {[
                         { id: 'ai-test', title: '✅ Тест с AI-Анализом' },
                         { id: 'ai-essay', title: '🧠 AI-Проверка сочинения' }
@@ -188,9 +264,6 @@ export default function HomePage() {
                 </Box>
             </FadeContainer>
 
-            {/* Лайфхак */}
-
-
             {/* Диалог категории */}
             <Dialog open={!!openCategory} onClose={() => setOpenCategory(null)} fullWidth maxWidth="xs" PaperProps={{ sx: { borderRadius: 2, m: 1, maxHeight: '120vh', animation: `${fadeIn} 0.3s ease-out` } }}>
                 {openCategory && (
@@ -226,13 +299,15 @@ export default function HomePage() {
                     </>
                 )}
             </Dialog>
+
+            {/* Лайфхак */}
             <FadeContainer>
                 <Alert
                     severity="info"
                     icon={<TipsAndUpdates fontSize="small" />}
                     sx={{
                         borderRadius: 2,
-                        marginTop: 5,
+                        marginTop: 4,
                         bgcolor: 'surfaceContainerLow.main',
                         color: 'onSurfaceVariant.main',
                         border: 'none',
@@ -259,10 +334,7 @@ export default function HomePage() {
                         </Typography>
                     )}
                 </Alert>
-
-
             </FadeContainer>
-
         </Container>
     );
 }
