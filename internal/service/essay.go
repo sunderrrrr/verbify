@@ -10,11 +10,12 @@ import (
 )
 
 type EssayService struct {
-	LLM *LLMService
+	LLM       LLM
+	analytics Analytics
 }
 
-func NewEssayService(llm *LLMService) *EssayService {
-	return &EssayService{llm}
+func NewEssayService(llm LLM, analytics Analytics) *EssayService {
+	return &EssayService{llm, analytics}
 }
 
 func (s *EssayService) GetEssayThemes() ([]domain.EssayTheme, error) {
@@ -37,10 +38,10 @@ func (s *EssayService) GenerateUserPrompt(request domain.EssayRequest) (string, 
 		logger.Log.Error("Error reading essay prompt file:", err)
 		return "", err
 	}
-	return fmt.Sprintf(string(prompt), request.Essay, request.Theme, request.Text), nil
+	return fmt.Sprintf(string(prompt), request.Theme, request.Text, request.Essay), nil
 }
 
-func (s *EssayService) ProcessEssayRequest(request domain.EssayRequest) (*domain.EssayResponse, error) {
+func (s *EssayService) ProcessEssayRequest(userId int, request domain.EssayRequest) (*domain.EssayResponse, error) {
 	prompt, err := s.GenerateUserPrompt(request)
 	if err != nil {
 		return nil, err
@@ -58,16 +59,19 @@ func (s *EssayService) ProcessEssayRequest(request domain.EssayRequest) (*domain
 	if err = json.Unmarshal([]byte(resp), &eResponse); err != nil {
 		return nil, err
 	}
-	finalScore := 0
+	finalRate := 0
 	for i := 0; i < len(eResponse.Score); i++ {
-		finalScore += eResponse.Score[i]
+		finalRate += eResponse.Score[i]
 	}
-	logger.Log.Infoln(eResponse)
+	if err = s.analytics.UpdateMetrics(userId, finalRate, eResponse.Problems); err != nil {
+		return nil, err
+	}
 	finalResult := domain.EssayResponse{
-		Score:          finalScore,
+		Score:          finalRate,
 		Feedback:       eResponse.Feedback,
 		Recommendation: eResponse.Recommendation,
 	}
+
 	return &finalResult, nil
 }
 

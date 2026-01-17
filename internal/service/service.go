@@ -19,6 +19,7 @@ type Service struct {
 	Subscription
 	Antifraud
 	Scan
+	Analytics
 }
 
 type Theory interface {
@@ -46,7 +47,7 @@ type Facts interface {
 type Essay interface {
 	GetEssayThemes() ([]domain.EssayTheme, error)
 	GenerateUserPrompt(request domain.EssayRequest) (string, error)
-	ProcessEssayRequest(request domain.EssayRequest) (*domain.EssayResponse, error)
+	ProcessEssayRequest(userId int, request domain.EssayRequest) (*domain.EssayResponse, error)
 	TempEssayRequest(request domain.EssayRequest) (*domain.EssayResponse, error)
 }
 type User interface {
@@ -72,21 +73,27 @@ type Antifraud interface {
 type Scan interface {
 	ScanPhoto(file []io.Reader, filename []string) (string, error)
 }
+type Analytics interface {
+	UpdateMetrics(userId, lastRate int, problem string) error
+	AnalyzeStats(userId int) (domain.StatsAnalysisResponse, error)
+}
 
 func NewService(cfg *config.Config, repo *repository.Repository) *Service {
-	LLMs := NewLLMService(cfg)
-	AF := NewAntifraudService(repo)
-	TH := NewTheoryService(*repo)
+	LLMs := NewLLMService(cfg)            //LLM Service
+	AF := NewAntifraudService(repo)       // Antifraud Service
+	TH := NewTheoryService(*repo)         // Theory Service
+	AS := NewAnalyticsService(repo, LLMs) // Analytics Service
 	return &Service{
-		Auth:         NewAuthService(cfg, repo, AF),
 		Theory:       TH,
+		Auth:         NewAuthService(cfg, repo, AF),
 		LLM:          LLMs,
 		Chat:         NewChatService(*repo, LLMs, TH),
 		Facts:        NewFactService(),
-		Essay:        NewEssayService(LLMs),
+		Essay:        NewEssayService(LLMs, AS),
 		User:         NewUserService(cfg, repo),
 		Subscription: NewSubscriptionService(cfg, repo),
 		Antifraud:    AF,
-		Scan:         NewScanService(cfg),
+		Scan:         NewScanService(LLMs),
+		Analytics:    AS,
 	}
 }

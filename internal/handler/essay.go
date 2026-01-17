@@ -2,7 +2,6 @@ package handler
 
 import (
 	"WhyAi/internal/domain"
-	"WhyAi/pkg/logger"
 	"WhyAi/pkg/responser"
 	"net/http"
 
@@ -11,34 +10,31 @@ import (
 
 func (h *Handler) GetEssayTasks(c *gin.Context) {
 	if _, err := h.middleware.GetUserId(c); err != nil {
-		responser.NewErrorResponse(c, http.StatusUnauthorized, domain.InvalidIdError)
-		logger.Log.Errorf("Error while getting user id: %v", err)
+		responser.NewErrorResponse(c, http.StatusUnauthorized, domain.InvalidIdError, nil)
 		return
 	}
 	themes, err := h.service.Essay.GetEssayThemes()
 	if err != nil {
-		responser.NewErrorResponse(c, http.StatusInternalServerError, domain.GetEssayThemesFailed)
-		logger.Log.Errorf("Error while getting themes: %v", err)
+		responser.NewErrorResponse(c, http.StatusInternalServerError, domain.GetEssayThemesFailed, err)
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"result": themes})
 }
 
 func (h *Handler) SendEssay(c *gin.Context) {
+	id, err := h.middleware.GetUserId(c)
 	var input domain.EssayRequest
 	if _, err := h.middleware.GetUserId(c); err != nil {
-		responser.NewErrorResponse(c, http.StatusUnauthorized, domain.InvalidIdError)
-		logger.Log.Errorf("Error while getting user id: %v", err)
+		responser.NewErrorResponse(c, http.StatusUnauthorized, domain.InvalidIdError, nil)
 		return
 	}
 	if err := c.BindJSON(&input); err != nil {
-		responser.NewErrorResponse(c, http.StatusBadRequest, domain.FieldValidationError)
+		responser.NewErrorResponse(c, http.StatusBadRequest, domain.FieldValidationError, err)
 		return
 	}
-	response, err := h.service.Essay.ProcessEssayRequest(input)
+	response, err := h.service.Essay.ProcessEssayRequest(id, input)
 	if err != nil {
-		responser.NewErrorResponse(c, http.StatusInternalServerError, domain.EssayGraduateError)
-		logger.Log.Errorf("Error while processing essay request: %v", err)
+		responser.NewErrorResponse(c, http.StatusInternalServerError, domain.EssayGraduateError, err)
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"result": response})

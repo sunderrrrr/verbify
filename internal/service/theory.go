@@ -20,13 +20,13 @@ func GetTheory(n string) (string, error) {
 
 	data, err := ioutil.ReadFile(fmt.Sprintf("./static/theory/%s.txt", n))
 	if err != nil {
-		logger.Log.Error("Error while reading file: %v", err)
+		logger.Log.Errorf("Error while reading file: %v", err)
 		return "", err
 	}
 	return string(data), nil
 }
 func LoadContext() (string, error) {
-	data, err := ioutil.ReadFile(fmt.Sprintf("./static/theory/context.txt"))
+	data, err := ioutil.ReadFile("./static/theory/context.txt")
 	if err != nil {
 		return "", err
 	}
@@ -39,7 +39,7 @@ func (t *TheoryService) SendTheory(n string) (string, error) {
 	}
 	theory, err := GetTheory(n)
 	if err != nil {
-		logger.Log.Error("Error while getting theory: %v", err)
+		logger.Log.Errorf("Error while getting theory: %v", err)
 		return "", err
 	}
 	return theory, nil

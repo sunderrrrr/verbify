@@ -51,6 +51,7 @@ func (h *Handler) InitRoutes(cfg *config.Config) *gin.Engine {
 			user := v1.Group("/user", h.middleware.UserIdentity) // Инфа пользователя, подписки
 			{
 				user.GET("/info", h.GetUserInfo)
+				user.GET("/analyze", h.AnalyzeStats)
 				user.PUT("/update", h.UpdateUserInfo)
 				subscription := user.Group("subscription")
 				{

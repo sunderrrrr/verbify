@@ -26,7 +26,7 @@ func (s *ChatService) Chat(taskId, userId int) ([]domain.Message, error) {
 	if err != nil {
 		return nil, err
 	}
-	if req == false {
+	if !req {
 		theory, _ := s.Theory.SendTheory(strconv.Itoa(taskId))
 		msg := domain.Message{
 			Role:    "system",

@@ -20,7 +20,7 @@ func (m *MiddlewareService) FeatureLimit(feature string) gin.HandlerFunc {
 		}
 		limits, err := m.service.Subscription.GetPlans(id)
 		if err != nil {
-			responser.NewErrorResponse(c, http.StatusInternalServerError, "failed to get subscriptions")
+			responser.NewErrorResponse(c, http.StatusInternalServerError, "failed to get subscriptions", err)
 			logger.Log.Errorf("failed to get subscriptions: %v", err)
 			return
 		}
@@ -31,14 +31,14 @@ func (m *MiddlewareService) FeatureLimit(feature string) gin.HandlerFunc {
 		case "essay":
 			limit = limits.EssayLimit
 		default:
-			responser.NewErrorResponse(c, http.StatusBadRequest, "invalid feature")
+			responser.NewErrorResponse(c, http.StatusBadRequest, "invalid feature", err)
 		}
 
 		today := time.Now().Format("02-01-2006")
 		featureKey := fmt.Sprintf("%s:%s:%s", id, feature, today)
 		count, err := m.redis.Incr(c, featureKey)
 		if err != nil {
-			responser.NewErrorResponse(c, http.StatusInternalServerError, "failed to incr feature")
+			responser.NewErrorResponse(c, http.StatusInternalServerError, "failed to incr feature", err)
 			return
 		}
 		if count == 1 {
@@ -46,7 +46,7 @@ func (m *MiddlewareService) FeatureLimit(feature string) gin.HandlerFunc {
 			_, _ = m.redis.Expire(c, featureKey, time.Until(midnight))
 		}
 		if int(count) > limit {
-			responser.NewErrorResponse(c, http.StatusTooManyRequests, "you reached the limit")
+			responser.NewErrorResponse(c, http.StatusTooManyRequests, "you reached the limit", err)
 			//logger.Log.Infof("feature %s limit %d/%d", feature, count, limit)
 			c.Abort()
 			return

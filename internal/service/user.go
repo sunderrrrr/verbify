@@ -50,7 +50,7 @@ func (s *UserService) ResetPassword(resetModel domain.UserReset) error {
 		return []byte(s.cfg.Security.SigningKey), nil
 	})
 	if err != nil {
-		logger.Log.Error("Error while parsing token: %v", err)
+		logger.Log.Errorf("Error while parsing token: %v", err)
 		return err
 	}
 	claims, ok := token.Claims.(*ResetClaims)
@@ -64,7 +64,8 @@ func (s *UserService) ResetPassword(resetModel domain.UserReset) error {
 		logger.Log.Error("Empty email in token claims")
 		return errors.New("empty email")
 	}
-	return s.repo.ResetPassword(email, generatePasswordHash(resetModel.NewPass, s.cfg.Security.Salt))
+	newPassHash, err := generatePasswordHash(resetModel.NewPass)
+	return s.repo.ResetPassword(email, newPassHash)
 }
 
 func (s *UserService) GetRoleById(userId int) (int, error) {

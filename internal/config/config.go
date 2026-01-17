@@ -42,7 +42,6 @@ type Config struct {
 	} `mapstructure:"PAYMENT"`
 
 	Security struct {
-		Salt        string `mapstructure:"SALT"`
 		SigningKey  string `mapstructure:"SIGNING_KEY"`
 		FrontendUrl string `mapstructure:"FRONTEND_URL"`
 	} `mapstructure:"SECURITY"`
@@ -73,7 +72,6 @@ func Load() (*Config, error) {
 		viper.BindEnv("database.user", "DATABASE_USER")
 		viper.BindEnv("database.name", "DATABASE_NAME")
 		viper.BindEnv("llm.api_key", "LLM_API_KEY")
-		viper.BindEnv("security.salt", "SECURITY_SALT")
 		viper.BindEnv("security.signing_key", "SECURITY_SIGNING_KEY")
 		viper.BindEnv("redis.password", "REDIS_PASSWORD")
 		viper.BindEnv("redis.db", "REDIS_DB")

@@ -12,7 +12,7 @@ import (
 func (h *Handler) signUp(c *gin.Context) {
 	var input domain.User
 	if err := c.BindJSON(&input); err != nil {
-		responser.NewErrorResponse(c, http.StatusBadRequest, domain.FieldValidationError)
+		responser.NewErrorResponse(c, http.StatusBadRequest, domain.FieldValidationError, nil)
 		logger.Log.Errorf("Error while binding input: %v", err)
 		return
 	}
@@ -24,11 +24,10 @@ func (h *Handler) signUp(c *gin.Context) {
 	if err != nil {
 		logger.Log.Infoln(err)
 		if err.Error() == domain.AntiFraudDeniedRegError {
-			responser.NewErrorResponse(c, http.StatusUnauthorized, domain.AntiFraudDeniedRegError)
+			responser.NewErrorResponse(c, http.StatusUnauthorized, domain.AntiFraudDeniedRegError, err)
 			return
 		}
-		responser.NewErrorResponse(c, http.StatusUnauthorized, domain.SignUpError)
-		logger.Log.Error("Error while creating user: %v", err)
+		responser.NewErrorResponse(c, http.StatusUnauthorized, domain.SignUpError, err)
 		return
 	}
 
@@ -40,14 +39,12 @@ func (h *Handler) signUp(c *gin.Context) {
 func (h *Handler) signIn(c *gin.Context) {
 	var input domain.AuthUser
 	if err := c.BindJSON(&input); err != nil {
-		responser.NewErrorResponse(c, http.StatusBadRequest, domain.FieldValidationError)
-		logger.Log.Error("Error while binding input: %v", err)
+		responser.NewErrorResponse(c, http.StatusBadRequest, domain.FieldValidationError, nil)
 		return
 	}
 	signIn, err := h.service.Auth.GenerateToken(input)
 	if err != nil {
-		responser.NewErrorResponse(c, http.StatusUnauthorized, domain.SignInError)
-		logger.Log.Error("Error while generating token: %v", err)
+		responser.NewErrorResponse(c, http.StatusUnauthorized, domain.SignInError, err)
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"token": signIn})

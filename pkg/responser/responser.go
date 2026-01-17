@@ -1,6 +1,8 @@
 package responser
 
 import (
+	"WhyAi/pkg/logger"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -9,7 +11,9 @@ type errorResponse struct {
 	Msg string `json:"result"`
 }
 
-func NewErrorResponse(c *gin.Context, statusCode int, msg string) {
+func NewErrorResponse(c *gin.Context, statusCode int, msg string, err error) {
 	c.AbortWithStatusJSON(statusCode, errorResponse{Msg: msg})
-	//slogger.Log.Error("Error while binding input: %v", msg)
+	if err != nil {
+		logger.Log.Error(msg + ": " + err.Error())
+	}
 }

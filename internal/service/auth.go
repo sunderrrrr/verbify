@@ -4,12 +4,11 @@ import (
 	"WhyAi/internal/config"
 	"WhyAi/internal/domain"
 	"WhyAi/internal/repository"
-	"crypto/sha1"
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type AuthService struct {
@@ -33,7 +32,13 @@ const (
 
 func (s *AuthService) GenerateToken(login domain.AuthUser) (string, error) {
 	//get user from db
-	user, err := s.repo.GetUser(login.Email, generatePasswordHash(login.Password, s.cfg.Security.Salt), true)
+	user, err := s.repo.GetUser(login.Email)
+	if err != nil {
+		return "", err
+	}
+	if err = comparePasswords(user.Password, login.Password); err != nil {
+		return "", err
+	}
 	if err != nil {
 		return "", err
 	}
@@ -72,7 +77,11 @@ func (s *AuthService) ParseToken(accessToken string) (domain.User, error) {
 }
 
 func (s *AuthService) CreateUser(user domain.User) (int, error) {
-	user.Password = generatePasswordHash(user.Password, s.cfg.Security.Salt)
+	hashed, err := generatePasswordHash(user.Password)
+	if err != nil {
+		return 0, err
+	}
+	user.Password = hashed
 	excist, err := s.antifraud.CheckFraud(user.IP, user.Fingerprint)
 	if err != nil {
 		return 0, err
@@ -83,9 +92,14 @@ func (s *AuthService) CreateUser(user domain.User) (int, error) {
 	return s.repo.SignUp(user)
 }
 
-func generatePasswordHash(password, salt string) string {
-	hash := sha1.New()
-	hash.Write([]byte(password))
+func generatePasswordHash(password string) (string, error) {
+	hashed, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return "", err
+	}
+	return string(hashed), nil
+}
 
-	return fmt.Sprintf("%x", hash.Sum([]byte(salt)))
+func comparePasswords(hashed string, password string) error {
+	return bcrypt.CompareHashAndPassword([]byte(hashed), []byte(password))
 }

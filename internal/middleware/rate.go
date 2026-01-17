@@ -69,7 +69,7 @@ func (m *MiddlewareService) RateLimitter(c *gin.Context) {
 	}
 
 	if v.count >= maxRequests {
-		responser.NewErrorResponse(c, http.StatusTooManyRequests, "too many requests")
+		responser.NewErrorResponse(c, http.StatusTooManyRequests, "too many requests", nil)
 		c.Abort()
 		return
 	}

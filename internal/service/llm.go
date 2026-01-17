@@ -32,18 +32,16 @@ func (s *LLMService) AskLLM(messages []domain.Message, isEssay bool) (*domain.Me
 		Temperature: 0,
 		Messages:    messages,
 	})
+	logger.Log.Infof("msgs: %v", messages)
 	if err != nil {
 		return nil, errors.New("request marshal fail")
 	}
-
 	req, err := http.NewRequest("POST", s.ApiUrl, bytes.NewReader(body))
 	if err != nil {
 		return nil, errors.New("fail to create request")
 	}
-
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
 	req.Header.Set("Authorization", "Bearer "+s.Token)
-
 	resp, err := sender.Client.Do(req)
 	if err != nil {
 		return nil, err
@@ -51,9 +49,6 @@ func (s *LLMService) AskLLM(messages []domain.Message, isEssay bool) (*domain.Me
 	defer resp.Body.Close()
 
 	var res domain.LLMResponse
-	//slogger.Log.Infof("response raw %v")
-	logger.Log.Infof("response code %v", resp.StatusCode)
-
 	if err = json.NewDecoder(resp.Body).Decode(&res); err != nil {
 		return nil, errors.New("fail to decode response: " + err.Error())
 	}

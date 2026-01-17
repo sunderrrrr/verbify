@@ -31,17 +31,14 @@ func (a *AuthPostgres) SignUp(user domain.User) (int, error) {
 }
 
 // TODO дописать запрос
-func (a *AuthPostgres) GetUser(username, password string, login bool) (domain.User, error) {
+func (a *AuthPostgres) GetUser(username string) (domain.User, error) {
 	var user domain.User
 	var result *sql.Row
-	if login {
-		query := fmt.Sprintf(`SELECT * FROM %s WHERE email = $1 AND pass_hash = $2`, userDb)
-		result = a.db.QueryRow(query, username, password)
-	} else { // Если нужна проверка только по почте
-		query := fmt.Sprintf(`SELECT id, name, email FROM %s WHERE email = $1`, userDb)
-		result = a.db.QueryRow(query, username)
-	}
-	err := result.Scan(&user.Id, &user.Name, &user.Email, &user.Password, &user.IP, &user.Fingerprint, &user.UserType, &user.Subsription)
+
+	query := fmt.Sprintf(`SELECT id, name, email, pass_hash FROM %s WHERE email = $1`, userDb)
+	result = a.db.QueryRow(query, username)
+
+	err := result.Scan(&user.Id, &user.Name, &user.Email, &user.Password)
 	if err != nil {
 		return domain.User{}, err
 	}

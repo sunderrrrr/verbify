@@ -54,8 +54,8 @@ func (s *SubscriptionService) CreateSubscriptionURL(userId int, subscriptionId i
 	paymentReq := map[string]interface{}{
 		"amount":      float64(plan.Price),
 		"currency":    "RUB",
-		"description": fmt.Sprintf("Подписка на %s | UID: %s", plan.Name, userId),
-		"return_url":  "https://your-site.ru/success",
+		"description": fmt.Sprintf("Подписка на %s | UID: %d", plan.Name, userId),
+		"return_url":  "https://verbify.icu/success",
 		"metadata": map[string]string{
 			"user_id": fmt.Sprintf("%d", userId),
 			"plan_id": fmt.Sprintf("%d", plan.Id),

@@ -10,7 +10,7 @@ CREATE TABLE plans (
 
 INSERT INTO plans (name, essay_limit, chat_limit, price)
 VALUES
-    ('База', 3, 20, 0),
+    ('База', 1000, 20, 0),
     ('Продвинутый', 5, 30, 250),
     ('Босс ЕГЭ', 10, 50, 500);
 

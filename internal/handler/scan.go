@@ -14,19 +14,19 @@ import (
 func (h *Handler) ScanPhoto(c *gin.Context) {
 	_, err := h.middleware.GetUserId(c)
 	if err != nil {
-		responser.NewErrorResponse(c, http.StatusUnauthorized, domain.UnAuthorizedError)
+		responser.NewErrorResponse(c, http.StatusUnauthorized, domain.UnAuthorizedError, err)
 		return
 	}
 
 	form, err := c.MultipartForm()
 	if err != nil {
-		responser.NewErrorResponse(c, http.StatusBadRequest, "invalid form data")
+		responser.NewErrorResponse(c, http.StatusBadRequest, "invalid form data", err)
 		return
 	}
 
 	files := form.File["files"]
 	if len(files) == 0 {
-		responser.NewErrorResponse(c, http.StatusBadRequest, "no files provided")
+		responser.NewErrorResponse(c, http.StatusBadRequest, "no files provided", nil)
 		return
 	}
 
@@ -40,7 +40,7 @@ func (h *Handler) ScanPhoto(c *gin.Context) {
 	for _, fileHeader := range files {
 		file, err := fileHeader.Open()
 		if err != nil {
-			responser.NewErrorResponse(c, http.StatusBadRequest, "failed to open file: "+fileHeader.Filename)
+			responser.NewErrorResponse(c, http.StatusBadRequest, "failed to open file: "+fileHeader.Filename, err)
 			return
 		}
 		defer file.Close()
@@ -53,7 +53,7 @@ func (h *Handler) ScanPhoto(c *gin.Context) {
 
 	scan, err := h.service.Scan.ScanPhoto(fileReaders, filenames)
 	if err != nil {
-		responser.NewErrorResponse(c, http.StatusInternalServerError, domain.EssayScanError)
+		responser.NewErrorResponse(c, http.StatusInternalServerError, domain.EssayScanError, err)
 		logger.Log.Errorf("failed to scan photo: %v", err)
 		return
 	}

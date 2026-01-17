@@ -17,8 +17,8 @@ func (s *Server) Run(cfg *config.Config, handler *handler.Handler) error {
 		Addr:           ":" + cfg.Server.Port,
 		Handler:        handler.InitRoutes(cfg),
 		MaxHeaderBytes: 1 << 28,
-		ReadTimeout:    40 * time.Second,
-		WriteTimeout:   40 * time.Second,
+		ReadTimeout:    180 * time.Second,
+		WriteTimeout:   180 * time.Second,
 	}
 	return s.httpServer.ListenAndServe()
 }

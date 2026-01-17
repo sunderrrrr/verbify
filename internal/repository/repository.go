@@ -14,6 +14,7 @@ type Repository struct {
 	User
 	Subscription
 	Antifraud
+	Analytics
 }
 
 type Chat interface {
@@ -26,7 +27,7 @@ type Chat interface {
 
 type Auth interface {
 	SignUp(user domain.User) (int, error)
-	GetUser(username, password string, login bool) (domain.User, error)
+	GetUser(username string) (domain.User, error)
 }
 
 type User interface {
@@ -47,6 +48,11 @@ type Antifraud interface {
 	CheckFraud(ip, fingerprint string) (bool, error)
 }
 
+type Analytics interface {
+	UpdateMetrics(userId, lastRate int, problem string) error
+	GetMetricsInfo(userId int) (*domain.StatsRaw, error)
+}
+
 func NewRepository(db *sqlx.DB) *Repository {
 	return &Repository{
 		Auth:         NewAuthPostgres(db),
@@ -54,6 +60,7 @@ func NewRepository(db *sqlx.DB) *Repository {
 		User:         NewUserRepository(db),
 		Subscription: NewSubscriptionRepository(db),
 		Antifraud:    NewAntifraudRepository(db),
+		Analytics:    NewAnalyticsRepository(db),
 	}
 
 }
