@@ -1,0 +1,10 @@
+node_modules
+.git
+.dockerignore
+README.md
+.env
+.nyc_output
+coverage
+.npm
+.next
+dist
