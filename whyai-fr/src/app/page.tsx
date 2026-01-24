@@ -9,7 +9,6 @@ import {
     CircularProgress,
     Container,
     Dialog,
-    Grid,
     IconButton,
     keyframes,
     styled,
@@ -17,7 +16,7 @@ import {
     Typography,
     useMediaQuery
 } from '@mui/material';
-import {ArrowForward, Close, TipsAndUpdates} from '@mui/icons-material';
+import {Close, TipsAndUpdates} from '@mui/icons-material';
 import Link from 'next/link';
 import {useRouter} from 'next/navigation';
 import {useTheme} from '@mui/material/styles';
@@ -117,13 +116,11 @@ export default function HomePage() {
         { name: '📒 Лексика', description: "Правильное употребление слов", range: [5, 8], color: theme.palette.primary.light },
         { name: '🖊️ Орфография', description: "Правописание букв в словах", range: [9, 15], color: theme.palette.primary.light },
         { name: '📃 Пунктуация', description: "Знаки препинания в предложениях", range: [16, 21], color: theme.palette.primary.light },
-        { name: '📖 Текст', description: "Чтение и анализ содержимого текста", range: [22, 26], color: theme.palette.primary.light },
+        { name: '📖 Текст', description: "Чтение и анализ текста", range: [22, 26], color: theme.palette.primary.light },
     ];
 
     const handleViewDetailedStats = () => {
-        // Можно сделать модальное окно или переход на отдельную страницу
         setShowDetailedStats(true);
-        // Или router.push('/stats');
     };
 
     // @ts-ignore
@@ -137,7 +134,6 @@ export default function HomePage() {
                     Выбери раздел для изучения
                 </Typography>
             </FadeContainer>
-
 
             <TGBanner />
 
@@ -192,23 +188,35 @@ export default function HomePage() {
                             <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '0.75rem' }}>
                                 Задания {category.range[0]}-{category.range[1]}
                             </Typography>
-                            <ArrowForward sx={{ fontSize: isMobile ? 16 : 20, mt: 0.5 }} />
                         </Button>
                     ))}
                 </Box>
             </FadeContainer>
+
+            {/* ВИДЖЕТ СТАТИСТИКИ - ЦЕНТРИРОВАННЫЙ */}
             <FadeContainer>
-                <Grid container spacing={3} sx={{ mb: 4, mt:8}}>
-                    <Grid item xs={12}>
+                <Box sx={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    mt: 4,
+                    mb: 4
+                }}>
+                    <Box sx={{
+                        width: '100%',
+                        maxWidth: { xs: '100%', sm: '90%', md: '80%', lg: '70%' },
+                        mx: 'auto'
+                    }}>
                         <StatsWidget
                             compact={isMobile}
                             showRefresh={true}
                             themeLabels={categories.map(c => c.name)}
                             onViewDetails={handleViewDetailedStats}
                         />
-                    </Grid>
-                </Grid>
+                    </Box>
+                </Box>
             </FadeContainer>
+
             <FadeContainer>
                 <Typography variant="h6" sx={{
                     mt: 4,

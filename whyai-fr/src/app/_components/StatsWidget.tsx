@@ -1,6 +1,7 @@
 'use client';
 
 import {
+    Alert,
     Box,
     Button,
     Card,
@@ -14,6 +15,9 @@ import {
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
 import EqualizerIcon from '@mui/icons-material/Equalizer';
+import WarningIcon from '@mui/icons-material/Warning';
+import EmojiObjectsIcon from '@mui/icons-material/EmojiObjects';
+import PsychologyIcon from '@mui/icons-material/Psychology';
 import {keyframes, styled} from '@mui/material/styles';
 import {useEffect, useState} from 'react';
 
@@ -30,15 +34,16 @@ const FadeContainer = styled(Box)(({ theme }) => ({
 export interface StatsAnalysisResponse {
     id: number;
     user_id: number;
-    essay_avg_rate: number; // 0-22 балла для сочинения
-    problematic_themes: string; // Текстовый отчет от ИИ
-    most_clickable_theme: number; // 1-4
+    essay_avg_rate: number;
+    problematic_themes: string;
+    most_clickable_theme: number;
 }
 
 interface APIResponse {
-    result: StatsAnalysisResponse;
+    result?: StatsAnalysisResponse | string;
     status?: string;
     error?: string;
+    message?: string;
 }
 
 interface StatsWidgetProps {
@@ -48,14 +53,8 @@ interface StatsWidgetProps {
     onViewDetails?: () => void;
 }
 
-// Мок-данные для разработки
-const MOCK_STATS: StatsAnalysisResponse = {
-    id: 1,
-    user_id: 1,
-    essay_avg_rate: 17.5,
-    problematic_themes: "Пользователь демонстрирует хорошее понимание лексики и орфографии, но испытывает трудности с пунктуацией в сложных предложениях. Рекомендуется уделить больше внимания правилам расстановки запятых в причастных и деепричастных оборотах.",
-    most_clickable_theme: 2 // 1 = Лексика, 2 = Орфография, 3 = Пунктуация, 4 = Текст
-};
+// Состояния виджета
+type WidgetState = 'loading' | 'data' | 'no-data' | 'error' | 'insufficient-data';
 
 // Компонент для отображения изменения балла
 const ScoreChangeIndicator = ({ current, previous }: { current: number; previous?: number }) => {
@@ -88,6 +87,136 @@ const ScoreChangeIndicator = ({ current, previous }: { current: number; previous
     }
 };
 
+// Компонент для состояния "недостаточно данных"
+const InsufficientDataState = ({ message, onRetry, compact }: {
+    message: string;
+    onRetry: () => void;
+    compact?: boolean
+}) => {
+    const theme = useTheme();
+
+    return (
+        <Card sx={{
+            p: compact ? 2 : 3,
+            borderRadius: 2,
+            bgcolor: theme.palette.mode === 'dark' ? 'grey.900' : 'grey.50',
+            border: `1px dashed ${theme.palette.divider}`,
+            textAlign: 'center'
+        }}>
+            <Box mb={2}>
+                <PsychologyIcon
+                    sx={{
+                        fontSize: compact ? 40 : 60,
+                        color: 'primary.main',
+                        mb: 1
+                    }}
+                />
+            </Box>
+
+            <Typography variant={compact ? "h6" : "h5"} fontWeight={600} mb={1}>
+                📝 Недостаточно данных
+            </Typography>
+
+            <Typography variant="body2" color="text.secondary" mb={compact ? 2 : 3}>
+                {message === "not enough data to analyze"
+                    ? "Для анализа статистики необходимо решить больше заданий. Попробуйте позже или начните заниматься прямо сейчас!"
+                    : message === "metrics data is nil"
+                        ? "Данные для анализа отсутствуют. Начните решать задания, чтобы получить персональную статистику."
+                        : message}
+            </Typography>
+
+            <Box display="flex" flexDirection="column" gap={1}>
+                <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={onRetry}
+                    sx={{ mb: 1 }}
+                >
+                    Проверить снова
+                </Button>
+
+                {!compact && (
+                    <Box>
+                        <Typography variant="caption" color="text.secondary" display="block" mb={1}>
+                            Что делать:
+                        </Typography>
+                        <Box display="flex" flexDirection="column" gap={0.5}>
+                            <Typography variant="caption" display="flex" alignItems="center">
+                                ✓ Решите минимум 4 темы для анализа
+                            </Typography>
+                            <Typography variant="caption" display="flex" alignItems="center">
+                                ✓ Попробуйте разные разделы подготовки
+                            </Typography>
+                            <Typography variant="caption" display="flex" alignItems="center">
+                                ✓ Вернитесь через некоторое время
+                            </Typography>
+                        </Box>
+                    </Box>
+                )}
+            </Box>
+        </Card>
+    );
+};
+
+// Компонент для состояния ошибки
+const ErrorState = ({ error, onRetry, compact }: {
+    error: string;
+    onRetry: () => void;
+    compact?: boolean
+}) => {
+    const theme = useTheme();
+
+    return (
+        <Card sx={{
+            p: compact ? 2 : 3,
+            borderRadius: 2,
+            bgcolor: theme.palette.mode === 'dark' ? 'grey.900' : 'grey.50',
+            border: `1px solid ${theme.palette.error.light}`,
+            textAlign: 'center'
+        }}>
+            <Box mb={2}>
+                <WarningIcon
+                    sx={{
+                        fontSize: compact ? 40 : 60,
+                        color: 'error.main',
+                        mb: 1
+                    }}
+                />
+            </Box>
+
+            <Typography variant={compact ? "h6" : "h5"} fontWeight={600} mb={1}>
+                ⚠️ Ошибка загрузки
+            </Typography>
+
+            <Alert
+                severity="error"
+                sx={{ mb: 2, justifyContent: 'center' }}
+                icon={false}
+            >
+                <Typography variant="body2">
+                    {error}
+                </Typography>
+            </Alert>
+
+            <Button
+                variant="outlined"
+                color="error"
+                onClick={onRetry}
+                startIcon={<CircularProgress size={16} />}
+                sx={{ mb: 1 }}
+            >
+                Попробовать снова
+            </Button>
+
+            {!compact && (
+                <Typography variant="caption" color="text.secondary" display="block" mt={1}>
+                    Если ошибка повторяется, обратитесь в поддержку
+                </Typography>
+            )}
+        </Card>
+    );
+};
+
 export default function StatsWidget({
                                         compact = false,
                                         showRefresh = true,
@@ -100,7 +229,8 @@ export default function StatsWidget({
     const [stats, setStats] = useState<StatsAnalysisResponse | null>(null);
     const [previousScore, setPreviousScore] = useState<number | null>(null);
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+    const [widgetState, setWidgetState] = useState<WidgetState>('loading');
+    const [errorMessage, setErrorMessage] = useState<string>('');
     const [lastUpdated, setLastUpdated] = useState<string>('');
 
     // Функция для получения токена из куки
@@ -111,10 +241,49 @@ export default function StatsWidget({
         return tokenCookie ? tokenCookie.split('=')[1] : '';
     };
 
+    // Функция для определения типа ответа и состояния
+    const determineWidgetState = (apiResponse: APIResponse, statusCode: number): WidgetState => {
+        // Если сервер вернул ошибку 500
+        if (statusCode === 500) {
+            // Проверяем сообщения об отсутствии данных
+            if (typeof apiResponse.result === 'string') {
+                const message = apiResponse.result.toLowerCase();
+                if (message.includes('not enough data') || message.includes('metrics data is nil')) {
+                    return 'insufficient-data';
+                }
+            }
+            if (apiResponse.error || apiResponse.message) {
+                const errorMsg = (apiResponse.error || apiResponse.message || '').toLowerCase();
+                if (errorMsg.includes('not enough data') || errorMsg.includes('metrics data is nil')) {
+                    return 'insufficient-data';
+                }
+            }
+            return 'error';
+        }
+
+        // Если есть корректные данные
+        if (apiResponse.result && typeof apiResponse.result === 'object') {
+            return 'data';
+        }
+
+        // Если результат - строка с сообщением об ошибке
+        if (typeof apiResponse.result === 'string') {
+            const message = apiResponse.result.toLowerCase();
+            if (message.includes('not enough data') || message.includes('metrics data is nil')) {
+                return 'insufficient-data';
+            }
+            return 'error';
+        }
+
+        // Если данных нет
+        return 'no-data';
+    };
+
     // Функция для получения данных из API
     const fetchStats = async (forceRefresh = false) => {
         setLoading(true);
-        setError(null);
+        setWidgetState('loading');
+        setErrorMessage('');
 
         try {
             const token = getAuthToken();
@@ -134,52 +303,60 @@ export default function StatsWidget({
                 cache: forceRefresh ? 'no-cache' : 'default'
             });
 
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
             const apiResponse: APIResponse = await response.json();
 
-            // Проверяем структуру ответа
-            if (!apiResponse.result) {
-                throw new Error('Некорректный формат ответа от сервера');
+            // Определяем состояние на основе ответа
+            const state = determineWidgetState(apiResponse, response.status);
+            setWidgetState(state);
+
+            if (state === 'data') {
+                // Успешный ответ с данными
+                const data = apiResponse.result as StatsAnalysisResponse;
+
+                // Сохраняем предыдущий результат для сравнения
+                const cachedScore = localStorage.getItem('previous_essay_score');
+                if (cachedScore) {
+                    setPreviousScore(parseFloat(cachedScore));
+                }
+
+                // Сохраняем текущий результат для следующего сравнения
+                localStorage.setItem('previous_essay_score', data.essay_avg_rate.toString());
+
+                setStats(data);
+                setLastUpdated(new Date().toLocaleTimeString([], {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                }));
+            } else if (state === 'insufficient-data') {
+                // Недостаточно данных для анализа
+                let message = 'Недостаточно данных для анализа';
+                if (typeof apiResponse.result === 'string') {
+                    message = apiResponse.result;
+                } else if (apiResponse.error) {
+                    message = apiResponse.error;
+                } else if (apiResponse.message) {
+                    message = apiResponse.message;
+                }
+                setErrorMessage(message);
+            } else if (state === 'error') {
+                // Другие ошибки
+                let message = 'Не удалось загрузить статистику';
+                if (typeof apiResponse.result === 'string') {
+                    message = apiResponse.result;
+                } else if (apiResponse.error) {
+                    message = apiResponse.error;
+                } else if (apiResponse.message) {
+                    message = apiResponse.message;
+                } else if (!response.ok) {
+                    message = `Ошибка сервера: ${response.status}`;
+                }
+                setErrorMessage(message);
             }
-
-            const data = apiResponse.result;
-
-            // Сохраняем предыдущий результат для сравнения
-            const cachedScore = localStorage.getItem('previous_essay_score');
-            if (cachedScore) {
-                setPreviousScore(parseFloat(cachedScore));
-            }
-
-            // Сохраняем текущий результат для следующего сравнения
-            localStorage.setItem('previous_essay_score', data.essay_avg_rate.toString());
-
-            setStats(data);
-            setLastUpdated(new Date().toLocaleTimeString([], {
-                hour: '2-digit',
-                minute: '2-digit'
-            }));
 
         } catch (err) {
             console.error('Error fetching stats:', err);
-
-            let errorMessage = 'Не удалось загрузить статистику';
-            if (err instanceof Error) {
-                if (err.message.includes('HTTP error')) {
-                    errorMessage = 'Ошибка подключения к серверу';
-                } else if (err.message.includes('Некорректный формат')) {
-                    errorMessage = 'Некорректные данные от сервера';
-                }
-            }
-
-            setError(errorMessage);
-
-            // В случае ошибки показываем мок-данные только если у нас нет сохраненных данных
-            if (!stats) {
-                setStats(MOCK_STATS);
-            }
+            setWidgetState('error');
+            setErrorMessage('Ошибка подключения к серверу');
         } finally {
             setLoading(false);
         }
@@ -195,7 +372,7 @@ export default function StatsWidget({
         await fetchStats(true);
     };
 
-    if (loading && !stats) {
+    if (widgetState === 'loading') {
         return (
             <Card sx={{
                 p: 3,
@@ -208,13 +385,37 @@ export default function StatsWidget({
             }}>
                 <CircularProgress size={32} />
                 <Typography variant="body2" color="text.secondary" mt={2}>
-                    Загружаем статистику...
+                    Анализируем вашу статистику...
                 </Typography>
             </Card>
         );
     }
 
-    if (!stats) {
+    if (widgetState === 'insufficient-data') {
+        return (
+            <FadeContainer>
+                <InsufficientDataState
+                    message={errorMessage}
+                    onRetry={handleRefresh}
+                    compact={compact}
+                />
+            </FadeContainer>
+        );
+    }
+
+    if (widgetState === 'error') {
+        return (
+            <FadeContainer>
+                <ErrorState
+                    error={errorMessage}
+                    onRetry={handleRefresh}
+                    compact={compact}
+                />
+            </FadeContainer>
+        );
+    }
+
+    if (widgetState === 'no-data' || !stats) {
         return (
             <Card sx={{
                 p: 3,
@@ -225,8 +426,12 @@ export default function StatsWidget({
                 justifyContent: 'center',
                 alignItems: 'center'
             }}>
+                <EmojiObjectsIcon sx={{ fontSize: 60, color: 'text.secondary', mb: 2 }} />
+                <Typography variant="h6" fontWeight={600} mb={1}>
+                    Данные отсутствуют
+                </Typography>
                 <Typography variant="body2" color="text.secondary" mb={2}>
-                    Нет данных статистики
+                    Начните решать задания, чтобы получить статистику
                 </Typography>
                 <Button
                     variant="contained"
@@ -235,7 +440,7 @@ export default function StatsWidget({
                     disabled={loading}
                     startIcon={loading ? <CircularProgress size={16} /> : undefined}
                 >
-                    {loading ? 'Загрузка...' : 'Загрузить статистику'}
+                    {loading ? 'Проверяем...' : 'Проверить наличие данных'}
                 </Button>
             </Card>
         );
@@ -261,10 +466,10 @@ export default function StatsWidget({
     // Определение цвета прогресс-бара в зависимости от балла
     const getProgressColor = (score: number) => {
         const percentage = (score / 22) * 100;
-        if (percentage >= 80) return 'success';      // 17.6+ баллов - отлично
-        if (percentage >= 60) return 'warning';      // 13.2+ баллов - хорошо
-        if (percentage >= 40) return 'info';         // 8.8+ баллов - удовлетворительно
-        return 'error';                              // менее 8.8 баллов - плохо
+        if (percentage >= 80) return 'success';
+        if (percentage >= 60) return 'warning';
+        if (percentage >= 40) return 'info';
+        return 'error';
     };
 
     // Получение текстовой оценки
@@ -311,12 +516,6 @@ export default function StatsWidget({
                         </Button>
                     )}
                 </Box>
-
-                {error && (
-                    <Typography color="error" variant="body2" mb={2}>
-                        ⚠️ {error} (используются демо-данные)
-                    </Typography>
-                )}
 
                 {/* Основной балл */}
                 <Box mb={compact ? 2 : 3}>
@@ -408,7 +607,7 @@ export default function StatsWidget({
                             onClick={onViewDetails}
                             fullWidth
                         >
-                            Подробная статистика →
+                            Функция находится на этапе тестирования. Могут быть сбои
                         </Button>
                     </Box>
                 )}
