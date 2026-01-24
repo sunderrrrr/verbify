@@ -1,4 +1,19 @@
+version: '3.8'
+
 services:
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"  # для SSL если нужно
+    volumes:
+      - ./nginx/dev.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - whyai-net
+
   postgres:
     image: postgres:15
     restart: always
@@ -16,7 +31,7 @@ services:
     networks:
       - whyai-net
     ports:
-      - "5436:5432"
+      - "5436:5432"  # оставляем для прямого доступа
 
   migrate:
     image: migrate/migrate
@@ -49,13 +64,11 @@ services:
       retries: 3
     networks:
       - whyai-net
-    ports:
-      - "6379:6379"
+    # ports удаляем - доступ через nginx
 
   backend:
     build:
       context: ./backend
-
     env_file:
       - ./backend/.env
     depends_on:
@@ -67,8 +80,10 @@ services:
         condition: service_completed_successfully
     networks:
       - whyai-net
-    ports:
-      - "8090:8090"
+    # ports удаляем - доступ через nginx
+    environment:
+      - API_HOST=nginx  # или localhost если нужно
+      - API_PORT=80
 
   frontend:
     build:
@@ -78,8 +93,13 @@ services:
       - ./frontend/whyai-fr/.env
     networks:
       - whyai-net
-    ports:
-      - "3000:3000"
+    # ports удаляем - доступ через nginx
+    environment:
+      - NEXT_PUBLIC_API_URL=http://nginx/api  # или ваш домен
+    volumes:
+      - ./frontend/whyai-fr:/app
+      - /app/node_modules
+      - /app/.next
 
 volumes:
   pgdata:
