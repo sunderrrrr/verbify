@@ -35,7 +35,7 @@ func (m *MiddlewareService) FeatureLimit(feature string) gin.HandlerFunc {
 		}
 
 		today := time.Now().Format("02-01-2006")
-		featureKey := fmt.Sprintf("%s:%s:%s", id, feature, today)
+		featureKey := fmt.Sprintf("%d:%s:%s", id, feature, today)
 		count, err := m.redis.Incr(c, featureKey)
 		if err != nil {
 			responser.NewErrorResponse(c, http.StatusInternalServerError, "failed to incr feature", err)

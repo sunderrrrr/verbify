@@ -23,7 +23,7 @@ func (a *AuthPostgres) SignUp(user domain.User) (int, error) {
 	result := a.db.QueryRow(query, user.Name, user.Email, user.Password, user.IP, user.Fingerprint)
 	err := result.Scan(&id)
 	if err != nil {
-		logger.Log.Error("Error while signing up user: %v", err)
+		logger.Log.Errorf("Error while signing up user: %v", err)
 		return 0, err
 	}
 	return id, nil
