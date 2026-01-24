@@ -1,0 +1,12 @@
+GET http://localhost:8090/api/v1/user/subscription/plans
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTg2NTkzMTcsImlhdCI6MTc1ODYxNjExNywidXNlcl9pZCI6MX0.yXLAw_OiDkH6OHOVZpna4r-lSr4sy8qaOkvcjRVFqcw
+###
+
+
+POST http://localhost:8090/api/v1/user/subscription/plan
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTg2NTkzMTcsImlhdCI6MTc1ODYxNjExNywidXNlcl9pZCI6MX0.yXLAw_OiDkH6OHOVZpna4r-lSr4sy8qaOkvcjRVFqcw
+Content-Type: application/json
+
+{
+"plan_id" : 1
+}

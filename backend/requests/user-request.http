@@ -1,0 +1,6 @@
+### Регистрация нового пользователя
+GET http://localhost:8090/api/v1/user/info
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTg3MDUzOTYsImlhdCI6MTc1ODY2MjE5NiwidXNlcl9pZCI6MX0.U57txyYTnMj20cIDDihHfvQJcMIlXDVjlDtUThkNlIw
+### Регистрация нового пользователя
+GET http://localhost:8090/api/v1/admin/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTE3NjIyNDIsImlhdCI6MTc1MTcxOTA0MiwidXNlcl9pZCI6N30.MMeKayv-b5OLMuc4-igS03W-sIv1hk11h7Wylt-Ios0

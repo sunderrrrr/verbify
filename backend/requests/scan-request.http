@@ -1,0 +1,12 @@
+### Тестовый запрос с видеофайлом на скан
+POST http://localhost:8090/api/v1/essay/scan
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NjE2Nzc2OTIsImlhdCI6MTc2MTY3MDQ5MiwidXNlcl9pZCI6MX0.lBGB1JmZ14vFqITNXSOPVXLgvSfLOA5N_trCImfFtmY
+Content-Type: multipart/form-data; boundary=boundary
+
+--boundary
+Content-Disposition: form-data; name="file"; filename="document.jpg"
+Content-Type: image/jpeg
+
+
+< ./document.jpg
+--boundary--

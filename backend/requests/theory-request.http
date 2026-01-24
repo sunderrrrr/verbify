@@ -1,0 +1,3 @@
+### Регистрация нового пользователя
+GET http://localhost:8090/api/v1/theory/5
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTc2NzEzMTksImlhdCI6MTc1NzYyODExOSwidXNlcl9pZCI6MX0.SlLpr3UWaXyW8WTEQOVnOgthkJC6t1_I1HGa76ihuiw

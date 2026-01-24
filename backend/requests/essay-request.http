@@ -1,0 +1,14 @@
+### Получить массив тем
+GET http://localhost:8090/api/v1/essay/themes
+
+
+### Отправка сочинения на проверку
+POST http://localhost:8090/api/v1/essay/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDc3OTk1OTksImlhdCI6MTc0Nzc1NjM5OSwidXNlcl9pZCI6MSwidXNlcm5hbWUiOiJxdyJ9.D6KysMRmDCg7JMJC-mVYrQI7bvixyd5CWs9BcMhZERM
+Content-Type: application/json
+
+{
+  "theme": "123",
+  "text": "321",
+  "essay": "22222"
+}

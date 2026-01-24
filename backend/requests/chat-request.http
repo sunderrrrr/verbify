@@ -1,0 +1,19 @@
+### GET request to example server
+
+GET http://localhost:8090/api/v1/theory/5/chat
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDcwMDgyMDAsImlhdCI6MTc0Njk2NTAwMCwidXNlcl9pZCI6MSwidXNlcm5hbWUiOiJxdyJ9.cy3LVePRvSZWsZr4J6eLGyVjdgMsVu0CWWcZIKes5yM
+###
+
+
+POST http://localhost:8090/api/v1/theory/5/chat
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDcwMDgyMDAsImlhdCI6MTc0Njk2NTAwMCwidXNlcl9pZCI6MSwidXNlcm5hbWUiOiJxdyJ9.cy3LVePRvSZWsZr4J6eLGyVjdgMsVu0CWWcZIKes5yM
+
+{
+"role": "user",
+"content":"Ты кто"
+}
+
+
+###
+DELETE http://localhost:8090/api/v1/theory/5/chat
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDcwMDgyMDAsImlhdCI6MTc0Njk2NTAwMCwidXNlcl9pZCI6MSwidXNlcm5hbWUiOiJxdyJ9.cy3LVePRvSZWsZr4J6eLGyVjdgMsVu0CWWcZIKes5yM
