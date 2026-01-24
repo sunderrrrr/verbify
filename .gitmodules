@@ -1,8 +1,0 @@
-[submodule "frontend"]
-	path = frontend
-	branch = master
-	url = https://github.com/sunderrrrr/verbify-frontend.git
-[submodule "backend"]
-	path = backend
-	branch = master
-	url = https://github.com/sunderrrrr/verbify-backend.git
