@@ -27,7 +27,7 @@ export default function LandingPage() {
     const features = [
         { icon: <ChatIcon fontSize="large" color="primary" />, title: "Чат-бот", desc: "Разберёт любое задание ЕГЭ и ответит на вопросы 24/7." },
         { icon: <AssignmentTurnedInIcon fontSize="large" color="primary" />, title: "ИИ-Проверка сочинения", desc: "Даст подробный разбор и рекомендации по улучшению." },
-        { icon: <InsightsIcon fontSize="large" color="primary" />, title: "Тестирование с аналитикой", desc: "(В разработке): персональные тесты и отслеживание прогресса." },
+        { icon: <InsightsIcon fontSize="large" color="primary" />, title: "Анализ подготовки ученика", desc: "(В разработке): Отслеживание прогресса подготовки и персональный анализ" },
     ];
 
     const advantages = [
