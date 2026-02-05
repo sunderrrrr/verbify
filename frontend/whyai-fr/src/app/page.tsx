@@ -1,4 +1,3 @@
-// app/page.tsx - обновленный код
 'use client';
 import {useEffect, useState} from 'react';
 import {
@@ -60,10 +59,9 @@ export default function HomePage() {
 
     useEffect(() => {
         setMounted(true);
-        initialize(); // Инициализируем состояние из cookies
+        initialize();
     }, []);
 
-    // Редирект если не авторизован
     useEffect(() => {
         if (mounted && !token) {
             router.push('/login');
@@ -236,8 +234,8 @@ export default function HomePage() {
                     alignItems: 'stretch'
                 }}>
                     {[
-                        { id: 'ai-test', title: '✅ Тест с AI-Анализом' },
-                        { id: 'ai-essay', title: '🧠 AI-Проверка сочинения' }
+                        { id: 'ai-essay', title: '🧠 AI-Проверка сочинения' },
+                        { id: 'ai-test', title: '✅ Тест с AI-Анализом' }
                     ].map(practice => {
                         const isLocked = lockedPractice.includes(practice.id);
                         return (

@@ -3,7 +3,7 @@ services:
     image: nginx:alpine
     ports:
       - "80:80"
-      - "443:443"  # для SSL если нужно
+      - "443:443"
     volumes:
       - ./devops/nginx/dev.conf:/etc/nginx/nginx.conf
     depends_on:

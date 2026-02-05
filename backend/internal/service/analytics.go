@@ -53,7 +53,7 @@ func (s *AnalyticsService) UpdateMetrics(userId, lastRate int, problem string) e
 
 func (s *AnalyticsService) AnalyzeStats(userId int) (domain.StatsAnalysisResponse, error) {
 	rawMetrics, err := s.repo.GetMetricsInfo(userId)
-	//rawMetrics = mockRawStats
+	rawMetrics = mockRawStats
 	err = nil
 	logger.Log.Infof("rawMerics: %v", rawMetrics)
 	if err != nil {
@@ -89,8 +89,8 @@ func (s *AnalyticsService) AnalyzeStats(userId int) (domain.StatsAnalysisRespons
 		Content: prompt},
 	}
 	logger.Log.Infof("analytics: %v", msg)
-	resp, err := s.llm.AskLLM(msg, false)
-	//resp, err := mockLLMContent, nil
+	//resp, err := s.llm.AskLLM(msg, false)
+	resp, err := mockLLMContent, nil
 	if err != nil {
 		logger.Log.Errorf("service.AskLLM failed: %v", err)
 		return domain.StatsAnalysisResponse{}, err
