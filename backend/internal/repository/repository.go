@@ -15,6 +15,7 @@ type Repository struct {
 	Subscription
 	Antifraud
 	Analytics
+	Practice
 }
 
 type Chat interface {
@@ -53,6 +54,14 @@ type Analytics interface {
 	GetMetricsInfo(userId int) (*domain.StatsRaw, error)
 }
 
+type Practice interface {
+	GetTasksForPractice(taskTypeId, count int) ([]domain.PracticeTask, error)
+	GetTaskById(taskId int) (*domain.PracticeTask, error)
+	CreateAttempt(userId, taskTypeId, tasksCount, correctCount int) (int, error)
+	SaveAnswer(attemptId, taskId int, userAnswer string, isCorrect bool, comment string) error
+	GetAttemptResults(attemptId int) ([]domain.CheckedPractice, error)
+}
+
 func NewRepository(db *sqlx.DB) *Repository {
 	return &Repository{
 		Auth:         NewAuthPostgres(db),
@@ -61,6 +70,7 @@ func NewRepository(db *sqlx.DB) *Repository {
 		Subscription: NewSubscriptionRepository(db),
 		Antifraud:    NewAntifraudRepository(db),
 		Analytics:    NewAnalyticsRepository(db),
+		Practice:     NewPracticeRepository(db),
 	}
 
 }

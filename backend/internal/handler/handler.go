@@ -75,7 +75,12 @@ func (h *Handler) InitRoutes(cfg *config.Config) *gin.Engine {
 				essay.POST("/", h.middleware.FeatureLimit("essay"), h.SendEssay)
 				essay.POST("/scan", h.ScanPhoto)
 			}
-
+			practice := v1.Group("/practice", h.middleware.UserIdentity)
+			{
+				practice.GET("/tasks", h.GeneratePractice)
+				practice.POST("/analyze")
+				practice.POST("/check", h.CheckPractice)
+			}
 			fact := v1.Group("/fact")
 			fact.Use(cors.New(cors.Config{
 				AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},

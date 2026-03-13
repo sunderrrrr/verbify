@@ -20,6 +20,7 @@ type Service struct {
 	Antifraud
 	Scan
 	Analytics
+	Practice
 }
 
 type Theory interface {
@@ -78,6 +79,12 @@ type Analytics interface {
 	AnalyzeStats(userId int) (domain.StatsAnalysisResponse, error)
 }
 
+type Practice interface {
+	GeneratePractice(taskType, count int) ([]domain.PracticeTask, error)
+	CheckPractice(userId int, practice domain.PracticeRequest) (domain.PracticeResult, error)
+	//AnalyzePractice(userId int, practice domain.PracticeResult) (domain.Message, error)
+}
+
 func NewService(cfg *config.Config, repo *repository.Repository) *Service {
 	LLMs := NewLLMService(cfg)            //LLM Service
 	AF := NewAntifraudService(repo)       // Antifraud Service
@@ -95,5 +102,6 @@ func NewService(cfg *config.Config, repo *repository.Repository) *Service {
 		Antifraud:    AF,
 		Scan:         NewScanService(LLMs),
 		Analytics:    AS,
+		Practice:     NewPracticeService(LLMs, AS, repo.Practice),
 	}
 }

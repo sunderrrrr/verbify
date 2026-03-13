@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"WhyAi/internal/domain"
+	"WhyAi/pkg/logger"
 	"WhyAi/pkg/responser"
 	"errors"
 	"net/http"
@@ -24,7 +25,9 @@ func (m *MiddlewareService) UserIdentity(c *gin.Context) {
 		responser.NewErrorResponse(c, http.StatusUnauthorized, domain.UnAuthorizedError, nil)
 		return
 	}
+	logger.Log.Infoln(header)
 	userId, err := m.service.Auth.ParseToken(headerParts[1])
+	logger.Log.Infoln(userId, err)
 	if err != nil {
 		responser.NewErrorResponse(c, http.StatusUnauthorized, domain.ParseTokenError, err)
 		return
